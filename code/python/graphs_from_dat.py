@@ -1,12 +1,9 @@
 import os
 import numpy as np
-from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
+from config import dat_dir_path, media_dir_path
 
-
-dir_path = os.path.dirname(os.path.realpath(__file__))
-dat_dir_path = os.path.join(dir_path, "../../dat")
-media_dir_path = os.path.join(dir_path, "../../media")
 
 filename = os.path.join(dat_dir_path, "full_test.dat")
 figfile = os.path.join(media_dir_path, "LP_line_from_xppaut.png")
