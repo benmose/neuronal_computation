@@ -20,7 +20,7 @@ def read_coordinates_from_dat(filename: str, x_loc: int, y_loc: int) -> tuple:
     
 
 
-def find_peaks(x, y) -> tuple:
+def find_peaks_in_dat(x, y) -> tuple:
         sortId = np.argsort(x)
         tempx = x[sortId]
         tempy = y[sortId]
@@ -29,22 +29,24 @@ def find_peaks(x, y) -> tuple:
         maxm = argrelextrema(tempy, np.greater)  # (array([1, 3, 6]),)
         minm = argrelextrema(tempy, np.less)  # (array([2, 5, 7]),)
         peaks, _ = find_peaks(tempy)
-        return (tempx, tempy, peaks)
+        return (tempx, tempy, peaks, maxm, minm)
 
 
 
-def return_available_time_period(left_right_idx_array, pair_index):
+def return_available_time_period(peaks_idx, time_array, pair_index):
     # if we have more than pair_index peaks than we at least have 2*pair_index
     #  elements in the array. we take the values from the pair_index pair
     i = pair_index*2
-    while i > len(left_right_idx_array):
+    while i > len(peaks_idx):
         i -= 2
     if i <= 0:
          return 0
-    return left_right_idx_array[i-1] - left_right_idx_array[i-2]
+    left_idx = int(peaks_idx[i-1])
+    right_idx = int(peaks_idx[i-2])
+    print(time_array[left_idx], time_array[right_idx])
+    return time_array[left_idx] - time_array[right_idx]
 
 
 def find_signal_time_period(x,y):
-     tx, ty, peaks = find_peaks(x,y)
-     w, wh, li = peak_widths(ty, peaks, 0)
-     return return_available_time_period(li, 3)
+    p  = find_peaks_in_dat(x,y)
+    return return_available_time_period(p[2], x, 3)
