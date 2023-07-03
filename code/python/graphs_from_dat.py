@@ -6,6 +6,7 @@ from config import dat_dir_path, media_dir_path
 from utils import read_coordinates_from_dat
 
 dir_name = "z_0_05_d_0_01"
+# dir_name = "z_0_022_d_0_028"
 dir_path = os.path.join(dat_dir_path, dir_name)
 
 filename = os.path.join(dir_path, "full_test.dat")
@@ -39,6 +40,6 @@ plt.xlabel('z')
 plt.ylabel('d')
 
 
-plt.xlim(0, 0.3)
-plt.ylim(0, 0.25)
+plt.xlim(0, 0.125)
+plt.ylim(0, 0.1)
 plt.show()
