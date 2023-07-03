@@ -28,4 +28,4 @@ def dinfavg(M):
 def zinfavg(M):
     return 0.9*M
 
-print("Rate: ", M(0.022, 0.028))
+print("Rate: ", M(0.05, 0.07))
