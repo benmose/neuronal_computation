@@ -1,0 +1,107 @@
+# PARAMETERS
+p iapp=3.5
+p gCas=1.0
+p taus=4.5
+#p taus=0.05
+p gKCa=1.0
+#p mu=0.025,eps=0.005
+p mu=0.01,eps=0.012
+p THcm=-28.0,Kcm=-3.0
+#p gCa=4.0
+p gm=3.5
+p gnap=0.04
+p gna=100.0,gkdr=20.0,gl=0.12,gh=0.05
+p Cm=1,Vna=55.0,Vk=-90,Vl=-70,Vh=-27.4
+p VCa=120
+p THm=-28.0,Km=-7.8,THh=-50.0,Kh=7.0
+p THn=-23.0,Kn=-15.0
+p THp=-53.0,Kp=-5.0
+p THz=-28.0,Kz=-3.0,tauz=83.0
+p THs=12.0,Ks=-12.0
+c
+#p Thr=-83.9,Kr=7.4
+#
+#
+# INITIAL CONDITIONS
+V(0)=-52.0 , , 0.1, 0.1, 0.1
+h(0)=0.4
+n(0)=0.1
+z(0)=0.1
+s(0)=0.1
+#V(0)=-65.84
+#h(0)=0.92141213
+#n(0)=0.0497938
+#Ca(0)=0.0
+#s(0)=0.0
+#z(0)=0.00040176
+#r(0)=0.095137881
+#
+# FUNCTIONS
+#
+Il(V)=gl*(V-Vl) 
+#
+Ina(V,h)=gna*(minf(V)^3)*h*(V-Vna)
+minf(V)=1.0/(1.0+exp((V-THm)/Km))
+hinf(V)=1.0/(1.0+exp((V-THh)/Kh))
+tauh(V)=30.0/(exp((V+50.0)/15.0)+exp(-(V+50.0)/16.0))
+#
+Ikdr(V,n)=gkdr*(n^4)*(V-Vk)
+ninf(V)=1.0/(1.0+exp((V-THn)/Kn))
+taun(V)=7.0/(exp((V+40.0)/40.0)+exp(-(V+40.0)/50.0))
+#
+Inap(V)=gnap*pinf(V)*(V-Vna)
+pinf(V)=1.0/(1+exp((V-THp)/Kp))
+#
+Im(V,z)=gm*z*(V-Vk)
+zinf(V)=1.0/(1+exp((V-THz)/Kz))
+#
+#Ih(V,r)=gh*r*(V-Vh)
+#rinf(V)=1.0/(1+exp((V-THr)/Kr))
+#taur(V)=20.0+6000.0/(exp((V+140.0)/21.6)+exp(-(V+40.0)/22.7))
+#
+#mCainf(V)=1.0/(1.0+exp((V-THcm)/Kcm))
+#ICa(V)=gCa*mCainf(V)*(V-VCa)
+#zCa=Ca/(Ca+1)
+#
+#IKCa(V,z)=gKCa*zCa*(V-Vk)
+#
+ICas(V,s)=gCas*s*(V-VCa)
+#sinf(v)=0.5*(1+tanh((v-12.0)/24.0))
+sinfe(v)= 1.0/(1.0+exp((V-THs)/Ks))
+#
+# EQUATIONS
+V'=(-Il(V)-Ina(V,h)-Ikdr(V,n)-Inap(V)-Im(V,z)-ICas(V,s)+Iapp)/Cm
+#V'=(-Il(V)-Ina(V,h)-Ikdr(V,n)-Inap(V)-IKCa(V,zCa)-ICas(V,s)+Iapp)/Cm
+#V'=(-Ina(V,h)-Ikdr(V,n)-Im(V,z)-Inap(V)-Ih(V,r)-Il(V)+Iapp)/Cm
+h'=(hinf(v)-h)/tauh(v)
+n'=(ninf(v)-n)/taun(v)
+z'=(zinf(v)-z)/tauz
+s'=(sinfe(v)-s)/taus
+#Ca'=eps*(-mu*ICa(V)-Ca)
+#s'=(eps/taus)*(sinf(v)-s)
+#r'=(rinf(v)-r)/taur(v)
+#
+#aux mCainfx=mCainf(V)
+#aux ICax=ICa(V)
+#aux zCax=zCa
+#aux IKCax=IKCa(v,z)
+aux Imx=Im(V,z)
+#aux sinfx=sinf(v)
+aux sinfex=sinfe(v)
+#
+# xpp formatting
+@ XP=t
+@ YP=V
+@ TOTAL=1100,DT=0.01
+@ MAXSTOR=8000000,BOUNDS=10000,method=runge-kutta
+@ xlo=0,xhi=1100,ylo=-92,yhi=53
+#
+@ NTST=250,NMAX=55000,NPR=50
+@ DS=0.2,DSMIN=0.001,DSMAX=0.3
+@ PARMIN=-30,PARMAX=400,NORMMIN=0.0,NORMMAX=10000.0
+@ AUTOVAR=vs,AUTOXMIN=-25.0,AUTOXMAX=400.0,AUTOYMIN=-80.0,AUTOYMAX=55.0
+
+
+
+done  
+
