@@ -19,13 +19,22 @@ def read_coordinates_from_dat(filename: str, x_loc: int, y_loc: int) -> tuple:
         x.append(float(l[x_loc]))
         y.append(float(l[y_loc]))
 
+    return x,y
+
+def leave_only_given_locations_in_file(filename: str, x_loc: int, y_loc: int, point_num: None):
+    x = []
+    y = []
+    if point_num:
+        x, y = read_coordinates_of_unstable_point_from_dat(filename, x_loc, y_loc, point_num)
+    else:
+        x, y = read_coordinates_from_dat(filename, x_loc, y_loc)
     with open(filename, "w") as f:
         for i in range(len(x)):
             f.write(str(x[i]))
             f.write(' ')
             f.write(str(y[i]))
             f.write('\n')
-    return x,y
+
 
 
 def read_coordinates_of_unstable_point_from_dat(filename: str, x_loc: int, y_loc: int, point_num: float) -> tuple:
