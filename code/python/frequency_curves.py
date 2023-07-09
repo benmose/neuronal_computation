@@ -128,7 +128,7 @@ plt.figure()
 plt.plot(d1,f1)
 plt.plot(d1, func1(d1-0.03, *popta))
 
-
+print(popta)
 
 s = (r'fit = %1.5f*$\sqrt{x-0.03}}$ + %1.5f*(x-0.03)'% tuple(popta))
 

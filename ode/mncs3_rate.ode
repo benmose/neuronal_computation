@@ -1,0 +1,45 @@
+# PARAMETERS
+p tauz=400
+p taud=100
+
+
+
+z(0)=0.05
+d(0)=0.01
+
+
+#
+# FUNCTIONS
+#
+Freq(z, d)=0.73578236*sqrt(d-(z-0.007))-0.3028637*(d-(z-0.007))
+
+M(z, d)=if(d>(z-0.007))then(Freq(z,d))else(0)
+
+dinfavg(M)=0.5*M
+zinfavg(M)=0.9*M 
+
+aux MM=M(z,d)
+
+
+#
+# EQUATIONS
+#
+z'=(zinfavg(M(z,d))-z)/tauz
+d'=(dinfavg(M(z,d))-d)/taud
+
+
+#
+# xpp formatting
+@ XP=z
+@ YP=d
+@ TOTAL=1000,DT=0.01
+@ MAXSTOR=8000000,BOUNDS=10000,method=runge-kutta
+@ xlo=0,xhi=1,ylo=0,yhi=1
+#
+@ NTST=250,NMAX=55000,NPR=50
+@ DS=-0.2,DSMIN=0.001,DSMAX=0.3
+@ PARMIN=-5,PARMAX=2,NORMMIN=0.0,NORMMAX=10000.0
+@ AUTOVAR=vs,AUTOXMIN=-5.0,AUTOXMAX=2.0,AUTOYMIN=-80.0,AUTOYMAX=55.0
+
+done  
+
