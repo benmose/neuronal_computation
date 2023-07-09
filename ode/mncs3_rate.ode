@@ -11,9 +11,11 @@ d(0)=0.01
 #
 # FUNCTIONS
 #
-Freq(z, d)=0.73578236*sqrt(d-(z-0.007))-0.3028637*(d-(z-0.007))
 
-M(z, d)=if(d>(z-0.007))then(Freq(z,d))else(0)
+d_biff(x)=0.97248748*(x^2)+0.69684267*x-0.00626603
+Freq(z, d)=0.73578236*sqrt(d-d_biff(z))-0.3028637*(d-d_biff(z))
+
+M(z, d)=if(d>d_biff(z))then(Freq(z,d))else(0)
 
 dinfavg(M)=0.5*M
 zinfavg(M)=0.9*M 

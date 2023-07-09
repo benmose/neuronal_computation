@@ -18,6 +18,13 @@ def read_coordinates_from_dat(filename: str, x_loc: int, y_loc: int) -> tuple:
         l = line.split(' ')
         x.append(float(l[x_loc]))
         y.append(float(l[y_loc]))
+
+    with open(filename, "w") as f:
+        for i in range(len(x)):
+            f.write(str(x[i]))
+            f.write(' ')
+            f.write(str(y[i]))
+            f.write('\n')
     return x,y
 
 
