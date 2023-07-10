@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from math import pow, dist
 from scipy.optimize import minimize
@@ -24,11 +25,14 @@ def read_coordinates_from_dat(filename: str, x_loc: int, y_loc: int) -> tuple:
 def leave_only_given_locations_in_file(filename: str, x_loc: int, y_loc: int, point_num: None):
     x = []
     y = []
+    dirname = os.path.dirname(filename)
+    file_name = "diluted_" + os.path.basename(filename)
+    filepath = os.path.join(dirname, file_name)
     if point_num:
         x, y = read_coordinates_of_unstable_point_from_dat(filename, x_loc, y_loc, point_num)
     else:
         x, y = read_coordinates_from_dat(filename, x_loc, y_loc)
-    with open(filename, "w") as f:
+    with open(filepath, "w") as f:
         for i in range(len(x)):
             f.write(str(x[i]))
             f.write(' ')
