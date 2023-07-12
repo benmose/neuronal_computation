@@ -3,8 +3,8 @@ p d=0.01
 p z=0.06
 p iapp=1.0
 p gCad=1.0
-#p taud=4.5
 p taud=100
+
 p gKCa=1.0
 #p mu=0.025,eps=0.005
 p mu=0.01,eps=0.012

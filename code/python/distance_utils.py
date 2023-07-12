@@ -1,14 +1,14 @@
 import os
 import numpy as np
 from scipy.optimize import curve_fit
-from utils import read_coordinates_of_unstable_point_from_dat, shortes_distance_quadratic_func
+from utils import read_coordinates_from_dat, shortes_distance_quadratic_func
 
 def frequency2distance(file_name, dir_path, dval, func, n=7): 
     filename = os.path.join(dir_path, file_name)
     basename = os.path.splitext(filename)[0]
     outfile = os.path.join(dir_path, basename + ".txt")
 
-    dtmp, ftmp = read_coordinates_of_unstable_point_from_dat(filename, 0, 1, n)
+    dtmp, ftmp = read_coordinates_from_dat(filename, 0, 1)
     distmp = []
 
     C2, C1, C0 = (0.97248748,0.69684267,-0.00626603)
