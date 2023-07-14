@@ -3,6 +3,7 @@ import numpy as np
 from config import dat_dir_path
 import matplotlib.pyplot as plt
 from distance_utils import frequency2distance, frequency_approx
+from utils import shortes_distance_quadratic_func
 
 dir_name = "frequency"
 dir_path = os.path.join(dat_dir_path, dir_name)
@@ -11,19 +12,32 @@ func = lambda x,a,b,c: a*np.sqrt(x+c) + b*(x+c)
 
 func1 = lambda x,a,b: a*np.sqrt(x) + b*(x)
 
+rf = lambda x,a,b,c: a*np.sqrt(x) + b*x + c
 
-d, f, dist, popt = frequency2distance("z_0_02_s_0_001.dat", dir_path, 0.02, func)
-d1, f1, dist1, popt1 = frequency2distance("z_0_05_s_0_01.dat", dir_path, 0.05, func)
-d2, f2, dist2, popt2 = frequency2distance("z_0_07_s_0_01.dat", dir_path, 0.07, func, 8)
+ode_func = lambda x: -0.11013295*(x**2)+1.03349817*x+0.00310307
 
-shift_const_d = 0.00824477
-shift_const_d1 = 0.0298903
-shift_const_d2 = 0.0463035
+d, f, dist, popt, shift_const_d = frequency2distance("diluted_z_0_02_d_0_001.dat", dir_path, 0.02, func1)
+d1, f1, dist1, popt1, shift_const_d1 = frequency2distance("diluted_z_0_05_d_0_01.dat", dir_path, 0.05, func1)
+d2, f2, dist2, popt2, shift_const_d2 = frequency2distance("diluted_z_0_07_d_0_01.dat", dir_path, 0.07, func1)
 
-shifted_d = d-shift_const_d
-shifted_d1 = d1-shift_const_d1
-shifted_d2 = d2-shift_const_d2
-popta = frequency_approx(shifted_d, f, func1)
+# shift_const_d = 0.00819788
+# shift_const_d1 = 0.0301515
+# shift_const_d2 = 0.0463095
+
+x = np.array([0.02, 0.05, 0.07])
+y = np.array([shift_const_d, shift_const_d1, shift_const_d2])
+popta = frequency_approx(x, y, rf)
+print(popta)
+
+print("shifted: ", shift_const_d1)
+print("ode func: ", rf(0.05, *popta))
+print("dist of 0.01, 0: ", shortes_distance_quadratic_func(0.01, 0, *popta))
+
+if False:
+    shifted_d = d-shift_const_d
+    shifted_d1 = d1-shift_const_d1
+    shifted_d2 = d2-shift_const_d2
+    popta = frequency_approx(shifted_d, f, func1)
 
 if False:
     plt.figure()
@@ -40,7 +54,7 @@ if False:
     plt.ylim(0, 0.6)
     plt.show()
 
-if True:
+if False:
     plt.figure()
     plt.plot(shifted_d,f)
     plt.plot(shifted_d1, f1)
@@ -124,42 +138,43 @@ if True:
     plt.ylim(0, 0.6)
     plt.show()
 
-plt.figure()
-plt.plot(d1,f1)
-plt.plot(d1, func1(d1-0.03, *popta))
+if False:
+    plt.figure()
+    plt.plot(d1,f1)
+    plt.plot(d1, func1(d1-0.03, *popta))
 
-print(popta)
+    print(popta)
 
-s = (r'fit = %1.5f*$\sqrt{x-0.03}}$ + %1.5f*(x-0.03)'% tuple(popta))
+    s = (r'fit = %1.5f*$\sqrt{x-0.03}}$ + %1.5f*(x-0.03)'% tuple(popta))
 
-plt.title(s)
-
-
-plt.legend(['z=0.05', 'fitted curve'])
+    plt.title(s)
 
 
-plt.xlabel('d')
-plt.ylabel('frequency')
-plt.xlim(0, 1)
-plt.ylim(0, 0.6)
-plt.show()
-
-plt.figure()
-plt.plot(d2,f2)
-plt.plot(d2, func1(d2-0.046, *popta))
+    plt.legend(['z=0.05', 'fitted curve'])
 
 
+    plt.xlabel('d')
+    plt.ylabel('frequency')
+    plt.xlim(0, 1)
+    plt.ylim(0, 0.6)
+    plt.show()
 
-s = (r'fit = %1.5f*$\sqrt{x-0.05}}$ + %1.5f*(x-0.05)'% tuple(popta))
-
-plt.title(s)
-
-
-plt.legend(['z=0.07', 'fitted curve'])
+    plt.figure()
+    plt.plot(d2,f2)
+    plt.plot(d2, func1(d2-0.046, *popta))
 
 
-plt.xlabel('d')
-plt.ylabel('frequency')
-plt.xlim(0, 1)
-plt.ylim(0, 0.6)
-plt.show()
+
+    s = (r'fit = %1.5f*$\sqrt{x-0.05}}$ + %1.5f*(x-0.05)'% tuple(popta))
+
+    plt.title(s)
+
+
+    plt.legend(['z=0.07', 'fitted curve'])
+
+
+    plt.xlabel('d')
+    plt.ylabel('frequency')
+    plt.xlim(0, 1)
+    plt.ylim(0, 0.6)
+    plt.show()

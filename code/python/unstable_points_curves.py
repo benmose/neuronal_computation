@@ -10,7 +10,7 @@ dir_path = os.path.join(dat_dir_path, dir_name)
 
 hbfilename = os.path.join(dir_path, "diluted_HB_diagram_iapp_1.dat")
 lpfilename = os.path.join(dir_path, "diluted_LP_diagram_iapp_1.dat")
-lpupperfilename = os.path.join(dir_path, 'diluted_upper_LP_diagram_iapp_1.dat')
+lpupperfilename = os.path.join(dir_path, 'diluted_LP_diagram_for_upper_line_iapp_1.dat')
 
 func = lambda x,a,b,c: a*(x**2) + b*(x) + c
 

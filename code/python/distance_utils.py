@@ -3,7 +3,7 @@ import numpy as np
 from scipy.optimize import curve_fit
 from utils import read_coordinates_from_dat, shortes_distance_quadratic_func
 
-def frequency2distance(file_name, dir_path, dval, func, n=7): 
+def frequency2distance(file_name, dir_path, dval, func): 
     filename = os.path.join(dir_path, file_name)
     basename = os.path.splitext(filename)[0]
     outfile = os.path.join(dir_path, basename + ".txt")
@@ -28,7 +28,7 @@ def frequency2distance(file_name, dir_path, dval, func, n=7):
     dist = np.array(distmp)
 
     popt , _ = curve_fit(func, dist, f)  
-    return d, f, dist, popt
+    return d, f, dist, popt, float(d[-1])
 
 
 def frequency_approx(d, f, func):

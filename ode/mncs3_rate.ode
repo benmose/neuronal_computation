@@ -12,15 +12,17 @@ d(0)=0.01
 # FUNCTIONS
 #
 
-d_biff(x)=0.97248748*(x^2)+0.69684267*x-0.00626603
-Freq(z, d)=0.73578236*sqrt(d-d_biff(z))-0.3028637*(d-d_biff(z))
+d_biff(x)=0.972*(x^2)+0.69684*x-0.00627
+Freq(z,d)=0.73515848*sqrt(d-d_biff(z))-0.30205245*(d-d_biff(z))
 
-M(z, d)=if(d>d_biff(z))then(Freq(z,d))else(0)
+M(z, d)=if(d>=d_biff(z))then(Freq(z,d))else(0)
+#M(z,d)=Freq(z,d)
 
 dinfavg(M)=0.5*M
 zinfavg(M)=0.9*M 
 
 aux MM=M(z,d)
+aux dbf=d_biff(z)
 
 
 #
@@ -34,14 +36,14 @@ d'=(dinfavg(M(z,d))-d)/taud
 # xpp formatting
 @ XP=z
 @ YP=d
-@ TOTAL=1000,DT=0.01
+@ TOTAL=3000,DT=0.01
 @ MAXSTOR=8000000,BOUNDS=10000,method=runge-kutta
 @ xlo=0,xhi=1,ylo=0,yhi=1
 #
 @ NTST=250,NMAX=55000,NPR=50
-@ DS=-0.2,DSMIN=0.001,DSMAX=0.3
-@ PARMIN=-5,PARMAX=2,NORMMIN=0.0,NORMMAX=10000.0
-@ AUTOVAR=vs,AUTOXMIN=-5.0,AUTOXMAX=2.0,AUTOYMIN=-80.0,AUTOYMAX=55.0
+@ DS=0.2,DSMIN=0.001,DSMAX=0.3
+@ PARMIN=-30,PARMAX=400,NORMMIN=0.0,NORMMAX=10000.0
+@ AUTOVAR=V,AUTOXMIN=-25.0,AUTOXMAX=400.0,AUTOYMIN=-80.0,AUTOYMAX=55.0
 
 done  
 
