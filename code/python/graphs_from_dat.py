@@ -46,6 +46,6 @@ plt.xlabel('z')
 plt.ylabel('d')
 
 
-plt.xlim(0, 0.02)
-plt.ylim(0, 0.02)
+plt.xlim(0, 0.5)
+plt.ylim(0, 0.5)
 plt.show()
