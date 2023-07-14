@@ -1,6 +1,12 @@
 import os
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
+import pathlib
+
+
+current_path = pathlib.Path().resolve()
+
 from config import dat_dir_path
 from utils import read_coordinates_from_dat, find_peaks_in_dat, find_signal_time_period
 

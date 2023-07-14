@@ -1,0 +1,63 @@
+IMPORTANT:
+----------
+=============================================================
+DO NOT RUN THE mncs3_fast_1.ode WHICH CONTAINS UNCONVERGING
+INTEGRAL.
+
+USE:
+mncs3_fast.ode
+==============================================================
+
+
+
+
+FP in:
+------
+s = 0.01
+z = 0.06
+I = 1
+
+Auto Run Steady State 
+
+Grab Second HB Axes
+Change the axes to two par with the values below.
+Run Two par Main z Second s
+xmin 0 y min 0 xmax 2 ymax 2 ds 0.2 gives the graph of the HB 
+in two params.
+
+Grab 1st LP
+Two par Main z Second s
+axes xmax = 0.1
+not what we are looking
+
+Grab 2nd LP number 6
+Two par Main z Second s
+Do not change ds should be 0.2.
+axes ymin 0, ymax 0.3
+xmin 0, xmax 0.3
+
+Approximating line equation:
+0.91149071*x -0.01253742
+
+Distance function from above line:
+
+Finding frequency f-z graph:
+s = 0.01
+z = 0.06
+I = 1
+
+param, go, close, param, last, Sing pts, go, param,, last, go
+
+auto, stead state, grab hb 8
+run axes frequency  
+x = 0 to 1
+y = 0 to 0.6
+run periodic
+save grpah to file.
+The graph is for z = 0.06
+
+
+
+Approximation of distance to freqency:
+f = 0.88026907*sqrt(x + 0.03926437) -0.44226982(x + 0.03926437)
+
