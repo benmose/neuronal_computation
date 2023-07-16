@@ -17,3 +17,7 @@ def M_iapp_1(z, d):
     if d>=d_biff_iapp_1(z):
         return (Freq_iapp_1(z,d))
     return (0)
+
+
+def d_biff_iapp_2(x):
+    return 1.40183*(x**2)+0.56385*x-0.00613

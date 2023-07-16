@@ -1,16 +1,23 @@
 import os
+import sys
+import pathlib
 import numpy as np
-from config import dat_dir_path
 import matplotlib.pyplot as plt
+
+utils_path = pathlib.Path(__file__).parent.parent.joinpath("utils").as_posix()
+dat_path = pathlib.Path(__file__).parent.parent.parent.parent.joinpath("dat").joinpath("iapp_2").as_posix()
+sys.path.append(utils_path)
+sys.path.append(dat_path)
+
 from distance_utils import frequency_approx
 from utils import read_coordinates_from_dat
 
 dir_name = "stability"
-dir_path = os.path.join(dat_dir_path, dir_name)
+dir_path = os.path.join(dat_path, dir_name)
 
-hbfilename = os.path.join(dir_path, "diluted_HB_diagram_iapp_1.dat")
-lpfilename = os.path.join(dir_path, "diluted_LP_diagram_iapp_1.dat")
-lpupperfilename = os.path.join(dir_path, 'diluted_LP_diagram_for_upper_line_iapp_1.dat')
+hbfilename = os.path.join(dir_path, "diluted_HB_ic_z_0_06_d_0_01.dat")
+lpfilename = os.path.join(dir_path, "diluted_LP_ic_z_0_06_d_0_01.dat")
+lpupperfilename = os.path.join(dir_path, 'diluted_upper_LP_ic_z_0_06_d_0_01.dat')
 
 func = lambda x,a,b,c: a*(x**2) + b*(x) + c
 
