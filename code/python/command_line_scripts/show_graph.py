@@ -1,9 +1,11 @@
-import os
 import sys
+import pathlib
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit
-from config import dat_dir_path, media_dir_path
+
+utils_path = pathlib.Path(__file__).parent.parent.joinpath("utils").as_posix()
+sys.path.append(utils_path)
+
 from utils import read_coordinates_from_dat
 
 if len(sys.argv) < 2:

@@ -1,7 +1,10 @@
-import os
 import sys
+import pathlib
+
+utils_path = pathlib.Path(__file__).parent.parent.joinpath("utils").as_posix()
+sys.path.append(utils_path)
+
 from utils import leave_only_given_locations_in_file
-from config import dat_dir_path
 
 if len(sys.argv) < 4:
     print(sys.argv[0], ": Wrong number of arguments!")

@@ -1,7 +1,7 @@
 # PARAMETERS
 p d=0.01
 p z=0.06
-p iapp=1.0
+p iapp=2.0
 p gCad=1.0
 p taud=100
 
