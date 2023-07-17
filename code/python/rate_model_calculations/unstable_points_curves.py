@@ -9,7 +9,7 @@ dat_path = pathlib.Path(__file__).parent.parent.parent.parent.joinpath("dat").jo
 sys.path.append(utils_path)
 sys.path.append(dat_path)
 
-from distance_utils import frequency_approx
+from distance_utils import frequency_approx_scaled_quad
 from utils import read_coordinates_from_dat
 
 dir_name = "stability"
@@ -19,12 +19,11 @@ hbfilename = os.path.join(dir_path, "diluted_HB_z_0_06_d_0_01.dat")
 lpfilename = os.path.join(dir_path, "diluted_LP_z_0_06_d_0_01.dat")
 lpupperfilename = os.path.join(dir_path, 'diluted_LP_upper_z_0_06_d_0_01.dat')
 
-func = lambda x,a,b,c: a*(x**2) + b*(x) + c
 
 hx, hy = read_coordinates_from_dat(hbfilename, 0, 1)
 lpx, lpy = read_coordinates_from_dat(lpfilename, 0, 1)
 lplx, lply = read_coordinates_from_dat(lpupperfilename, 0, 1)
-popt = frequency_approx(lplx, lply, func)
+
 
 hz = np.array(hx)
 hd = np.array(hy)
@@ -34,14 +33,18 @@ lplz = np.array(lplx)
 lpld = np.array(lply)
 
 
+popt, func = frequency_approx_scaled_quad(lplz, lpld)
+
 plt.figure()
 plt.plot(hz, hd)
-plt.plot(lpz, lpd)
+plt.plot(lplz, lpld)
 plt.plot(lplz, func(lplz, *popt))
+#plt.plot(tx, ty)
+#plt.plot(tx, func(tx, *popt))
 
 
 
-s = (r'fit = %1.5f*$x^2$ + %1.5f*(x) +%1.5f'% tuple(popt))
+s = (r'fit = (%1.5f*$x^2$ + %1.5f*(x) +%1.5f)'% tuple(popt))
 print(popt)
 
 plt.title(s)

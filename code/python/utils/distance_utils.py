@@ -34,3 +34,10 @@ def frequency2distance(file_name, dir_path, dval, func):
 def frequency_approx(d, f, func):
     popt , _ = curve_fit(func, d, f)  
     return  popt
+
+def frequency_approx_scaled_quad(d, f):
+    tx = d*10**3
+    ty = f*10**3
+    func = lambda x,a,b,c: a*(x**2) + b*(x) + c
+    popt , _ = curve_fit(func, tx, ty)  
+    return  ([popt[0]*10**3, popt[1], popt[2]/10**3], func)
