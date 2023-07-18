@@ -19,7 +19,7 @@ M(z, d)=if(d>=d_biff(z))then(Freq(z,d))else(0)
 #M(z,d)=Freq(z,d)
 
 dinfavg(M)=0.5*M
-zinfavg(M)=0.9*M 
+zinfavg(M)=0.9*M
 
 aux MM=M(z,d)
 aux dbf=d_biff(z)

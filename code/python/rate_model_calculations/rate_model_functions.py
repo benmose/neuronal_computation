@@ -47,8 +47,9 @@ d = np.linspace(0, 1)
 print("d_biff_app_2(0.07): ", d_biff_iapp_2(0.07))
 print("d_biff_app_4(0.07): ", d_biff_iapp_4(0.07))
 
+print('Freq 0.1 0.1: ', Freq_iapp_1(0.1, 0.1))
 
-if True:
+if False:
     plt.figure()
     plt.plot(d,Freq_iapp_1(0.07, d))
     plt.plot(d, Freq_iapp_2(0.07,d))

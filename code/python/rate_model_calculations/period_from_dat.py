@@ -7,18 +7,16 @@ import pathlib
 
 utils_path = pathlib.Path(__file__).parent.parent.joinpath("utils").as_posix()
 sys.path.append(utils_path)
+dat_path = pathlib.Path(__file__).parent.parent.parent.parent.joinpath("dat").joinpath("iapp_1").as_posix()
+sys.path.append(dat_path)
 
-from config import dat_dir_path
 from utils import read_coordinates_from_dat, find_peaks_in_dat, find_signal_time_period
 
 
-dir_name = "z_0_02_d_0_02"
-data_dir = "data"
-dir_path = os.path.join(dat_dir_path, dir_name)
-data_path = os.path.join(dat_dir_path, data_dir)
+dir_name = "voltage"
+dir_path = os.path.join(dat_path, dir_name)
 
-datafile = os.path.join(data_path, "dist.txt")
-filename = os.path.join(dir_path, "fast.dat")
+filename = os.path.join(dir_path, "z_0_1_d_0_1.dat")
 
 x = []
 y = []
@@ -30,9 +28,6 @@ d = np.array(y)
 r = find_peaks_in_dat(z,d)
 t = find_signal_time_period(z,d)
 
-with open(datafile, "a") as f:
-    f.write(r"%f, %f, %f" % (0.02, 0.02, t))
-    f.write('\n')
 
 print('Period: ', t, "Rate: ", 1/t, 1000/t)
 

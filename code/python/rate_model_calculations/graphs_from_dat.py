@@ -1,19 +1,26 @@
 import os
+import sys
+import pathlib
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit
-from config import dat_dir_path, media_dir_path
+
+
+utils_path = pathlib.Path(__file__).parent.parent.joinpath("utils").as_posix()
+dat_path = pathlib.Path(__file__).parent.parent.parent.parent.joinpath("dat").joinpath("iapp_4").as_posix()
+sys.path.append(utils_path)
+sys.path.append(dat_path)
+
 from utils import read_coordinates_from_dat
 
 dir_name = "cycle"
 bif_dir="stability"
 # dir_name = "z_0_022_d_0_028"
-dir_path = os.path.join(dat_dir_path, dir_name)
-bif_path=os.path.join(dat_dir_path, bif_dir)
+dir_path = os.path.join(dat_path, dir_name)
+bif_path=os.path.join(dat_path, bif_dir)
 
-filename = os.path.join(dir_path, "diluted_init_cond_d_0_1_s_0_1.dat")
-ratefile = os.path.join(dir_path, "diluted_init_cond_z_0_1_s_0_1_rate.dat")
-lpfile = os.path.join(bif_path, "diluted_LP_diagram_iapp_1.dat")
+filename = os.path.join(dir_path, "diluted_z_0_1_d_0_1.dat")
+ratefile = os.path.join(dir_path, "diluted_rate_z_0_1_d_0_1.dat")
+lpfile = os.path.join(bif_path, "diluted_LP_z_0_06_d_0_01.dat")
 
 x = []
 y = []
@@ -46,6 +53,6 @@ plt.xlabel('z')
 plt.ylabel('d')
 
 
-plt.xlim(0, 0.5)
-plt.ylim(0, 0.5)
+plt.xlim(0, 0.2)
+plt.ylim(0, 0.2)
 plt.show()
