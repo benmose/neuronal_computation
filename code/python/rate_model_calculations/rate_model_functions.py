@@ -49,11 +49,11 @@ print("d_biff_app_4(0.07): ", d_biff_iapp_4(0.07))
 
 print('Freq 0.1 0.1: ', Freq_iapp_1(0.1, 0.1))
 
-if False:
+def plot_equations(z_val):
     plt.figure()
-    plt.plot(d,Freq_iapp_1(0.07, d))
-    plt.plot(d, Freq_iapp_2(0.07,d))
-    plt.plot(d, Freq_iapp_4(0.07,d))
+    plt.plot(d,Freq_iapp_1(z_val, d))
+    plt.plot(d, Freq_iapp_2(z_val,d))
+    plt.plot(d, Freq_iapp_4(z_val,d))
 
     plt.title('frequency vs d')
 
