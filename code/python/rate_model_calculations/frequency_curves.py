@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 utils_path = pathlib.Path(__file__).parent.parent.joinpath("utils").as_posix()
-dat_path = pathlib.Path(__file__).parent.parent.parent.parent.joinpath("dat").joinpath("iapp_2").as_posix()
+dat_path = pathlib.Path(__file__).parent.parent.parent.parent.joinpath("dat").joinpath("iapp_4").as_posix()
 sys.path.append(utils_path)
 sys.path.append(dat_path)
 
@@ -24,7 +24,7 @@ rf = lambda x,a,b,c: a*np.sqrt(x) + b*x + c
 
 ode_func = lambda x: -0.11013295*(x**2)+1.03349817*x+0.00310307
 
-d, f, dist, popt, shift_const_d = frequency2distance("diluted_z_0_02_d_0_001.dat", dir_path, 0.02, func1)
+d, f, dist, popt, shift_const_d = frequency2distance("diluted_z_0_04_d_0_001.dat", dir_path, 0.02, func1)
 d1, f1, dist1, popt1, shift_const_d1 = frequency2distance("diluted_z_0_05_d_0_01.dat", dir_path, 0.05, func1)
 d2, f2, dist2, popt2, shift_const_d2 = frequency2distance("diluted_z_0_07_d_0_01.dat", dir_path, 0.07, func1)
 shifted_d = d-shift_const_d

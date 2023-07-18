@@ -1,15 +1,22 @@
 import os
+import sys
+import pathlib
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit
-from config import dat_dir_path, media_dir_path
+
+
+utils_path = pathlib.Path(__file__).parent.parent.joinpath("utils").as_posix()
+dat_path = pathlib.Path(__file__).parent.parent.parent.parent.joinpath("dat").joinpath("iapp_4").as_posix()
+sys.path.append(utils_path)
+sys.path.append(dat_path)
+
 from utils import read_coordinates_from_dat
 
-dir_name = "comparison"
-dir_path = os.path.join(dat_dir_path, dir_name)
+dir_name = "cycle"
+dir_path = os.path.join(dat_path, dir_name)
 
-filename = os.path.join(dir_path, "slow_z_0_05_s_0_01.dat")
-ratefile = os.path.join(dir_path, "rate_biff_z_0_05_s_0_01.dat")
+filename = os.path.join(dir_path, "diluted_z_0_1_d_0_1.dat")
+ratefile = os.path.join(dir_path, "diluted_rate_z_0_1_d_0_1.dat")
 
 x = []
 y = []
