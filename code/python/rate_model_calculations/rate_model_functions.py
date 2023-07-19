@@ -21,7 +21,7 @@ def M_iapp_1(z, d):
 
 
 def d_biff_iapp_2(x):
-    return 1.40183*(x**2)+0.56385*x-0.00613
+    return 0.90313*(x**2)+0.70472*x-0.01208
 
 def Freq_iapp_2(z,d):
     return 0.73484029*np.sqrt(d-d_biff_iapp_2(z))-0.30128275*(d-d_biff_iapp_2(z))
@@ -32,7 +32,7 @@ def M_iapp_2(z, d):
     return (0)
 
 def d_biff_iapp_3(x):
-    return 1.40099*(x**2)+0.56018*x-0.01166
+    return 0.91151*(x**2)+0.69966*x-0.01766
 
 def Freq_iapp_3(z,d):
     return 0.73389634*np.sqrt(d-d_biff_iapp_3(z))-0.30225673*(d-d_biff_iapp_3(z))
@@ -44,7 +44,7 @@ def M_iapp_3(z, d):
 
 
 def d_biff_iapp_4(x):
-    return 1.40057863*(x**2)+0.55638719*x-0.01718072
+    return 0.71915*(x**2)+0.75968*x-0.02728
 
 def Freq_iapp_4(z,d):
     return 0.73403684*np.sqrt(d-d_biff_iapp_4(z))-0.30451244*(d-d_biff_iapp_4(z))
@@ -56,10 +56,10 @@ def M_iapp_4(z, d):
 
 
 d = np.linspace(0, 1)
-print("d_biff_app_2(0.07): ", d_biff_iapp_2(0.07))
-print("d_biff_app_4(0.07): ", d_biff_iapp_4(0.07))
+print("d_biff_app_2(0.0105927): ", d_biff_iapp_2(0.0105927))
+#print("d_biff_app_4(0.07): ", d_biff_iapp_4(0.07))
 
-print('Freq 0.1 0.1: ', Freq_iapp_1(0.1, 0.1))
+print('Freq_2 0 0.01: ', Freq_iapp_1(0, 0.01))
 
 def plot_equations(z_val):
     plt.figure()

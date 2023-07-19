@@ -12,10 +12,10 @@ d(0)=0.1
 # FUNCTIONS
 #
 
-d_biff(x)=1.40099*(x^2)+0.56018*x-0.01166
+d_biff(x)=0.91151*(x^2)+0.69966*x-0.01766
 Freq(z,d)=0.73389634*sqrt(d-d_biff(z))-0.30225673*(d-d_biff(z))
 
-M(z, d)=if(d>=d_biff(z))then(Freq(z,d))else(0)
+M(z, d)=if(d>d_biff(z))then(Freq(z,d))else(0)
 #M(z,d)=Freq(z,d)
 
 dinfavg(M)=0.5*M

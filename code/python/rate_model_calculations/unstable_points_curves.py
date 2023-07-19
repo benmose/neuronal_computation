@@ -9,7 +9,7 @@ dat_path = pathlib.Path(__file__).parent.parent.parent.parent.joinpath("dat").as
 sys.path.append(utils_path)
 sys.path.append(dat_path)
 
-from distance_utils import frequency_approx_scaled_quad
+from distance_utils import frequency_approx_scaled_quad, frequency_approx
 from utils import read_coordinates_from_dat
 
 class UnstablePointsCurve:
@@ -35,7 +35,8 @@ class UnstablePointsCurve:
         self.lpld = np.array(self.lply)
 
     def plot_curves(self):
-        popt, func = frequency_approx_scaled_quad(self.lplz, self.lpld)
+        func = lambda x,a,b,c: a*(x**2) + b*(x) + c
+        popt = frequency_approx(self.lplz, self.lpld, func)
 
         plt.figure()
         plt.plot(self.hz, self.hd)
@@ -53,7 +54,7 @@ class UnstablePointsCurve:
 
         plt.xlabel('z')
         plt.ylabel('d')
-        plt.xlim(0, 1)
-        plt.ylim(0, 1)
+        plt.xlim(0, 0.2)
+        plt.ylim(0, 0.2)
         plt.show()
 

@@ -3,6 +3,7 @@ import sys
 import pathlib
 import numpy as np
 import matplotlib.pyplot as plt
+from rate_model_functions import d_biff_iapp_2
 
 
 utils_path = pathlib.Path(__file__).parent.parent.joinpath("utils").as_posix()
@@ -48,6 +49,7 @@ class GraphsFromDat:
         plt.plot(self.z, self.d)
         plt.plot(self.rz, self.rd)
         plt.plot(self.lz, self.ld)
+        #plt.plot(self.lz, d_biff_iapp_2(self.lz))
 
         plt.title("rate and CB models for " + self.title)
         plt.legend(['CB model', 'rate model', 'saddle line'])

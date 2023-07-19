@@ -12,7 +12,7 @@ d(0)=0.1
 # FUNCTIONS
 #
 
-d_biff(x)=1.40057863*(x^2)+0.55638719*x-0.01718072
+d_biff(x)=0.71915*(x^2)+0.75968*x-0.02728
 Freq(z,d)=0.73403684*sqrt(d-d_biff(z))-0.30451244*(d-d_biff(z))
 
 M(z, d)=if(d>=d_biff(z))then(Freq(z,d))else(0)
