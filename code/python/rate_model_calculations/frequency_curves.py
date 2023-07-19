@@ -76,7 +76,7 @@ class FrequencyCurves:
 
 
 
-        s = (r'fit = %1.5f*$\sqrt{x}$ + %1.5f*(x)'% tuple(self.popta))
+        s = (r'fit = %1.5f*$\sqrt{x}$ + %1.5f*(x)'% tuple(popta))
 
         plt.title(s)
 

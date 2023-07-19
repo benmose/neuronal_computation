@@ -31,6 +31,18 @@ def M_iapp_2(z, d):
         return (Freq_iapp_2(z,d))
     return (0)
 
+def d_biff_iapp_3(x):
+    return 1.40099*(x**2)+0.56018*x-0.01166
+
+def Freq_iapp_3(z,d):
+    return 0.73389634*np.sqrt(d-d_biff_iapp_3(z))-0.30225673*(d-d_biff_iapp_3(z))
+
+def M_iapp_3(z, d):
+    if d>=d_biff_iapp_3(z):
+        return (Freq_iapp_3(z,d))
+    return (0)
+
+
 def d_biff_iapp_4(x):
     return 1.40057863*(x**2)+0.55638719*x-0.01718072
 
