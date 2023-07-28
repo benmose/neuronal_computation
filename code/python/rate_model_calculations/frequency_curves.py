@@ -9,7 +9,6 @@ dat_path = pathlib.Path(__file__).parent.parent.parent.parent.joinpath("dat").as
 sys.path.append(utils_path)
 sys.path.append(dat_path)
 
-from utils import shortes_distance_quadratic_func
 from distance_utils import frequency2distance, frequency_approx
 
 class FrequencyCurves:

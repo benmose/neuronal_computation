@@ -1,6 +1,15 @@
+import sys
+import pathlib
 import numpy as np
 import rate_model_coeffs
 import matplotlib.pyplot as plt
+
+utils_path = pathlib.Path(__file__).parent.parent.joinpath("utils").as_posix()
+sys.path.append(utils_path)
+
+from distance_utils import frequency_approx
+
+
 
 def l(x):
     return 0.91149071*x -0.01253742
@@ -18,6 +27,7 @@ class RateModelFunctions:
         self.current_values = currents_values
         self.__d_biff_func = lambda x,a,b,c: a*(x**2) + b*x + c
         self.__freq_func = lambda x,a,b: a*np.sqrt(x) + b*x
+        self.averaged_func_coeffs = ()
 
 
     def d_biff_iapp(self, index, x):
@@ -55,15 +65,31 @@ class RateModelFunctions:
     def add_to_list(self, a, l):
         l.append(a)
 
+    def averaged_freq_equation(self, z, d):
+        sum = 0
+        for i in range(len(self.freq_app_coeff)):
+            sum += self.freq_iapp(i, z, d)       
+        return sum/len(self.freq_app_coeff)
+
+    def calculate_averaged_func_coeffs(self, z):
+        x = np.linspace(0.1,1)
+        y = self.averaged_freq_equation(z,x)
+        popt = frequency_approx(x,y,self.__freq_func)
+        return popt
+
     def plot_freq_equations(self, zval):
         legend = []
         d = np.linspace(0, 1)
 
         for i in range(len(self.current_values)):
             legend.append(r'iApp = %dmA' % (self.current_values[i]))
+        legend.append('averaged freq equation')
         plt.figure()
         for i in range(len(self.freq_app_coeff)):
             plt.plot(d, self.freq_iapp(i, zval, d))
+
+        plt.plot(d, self.averaged_freq_equation(zval,d))
+
 
         plt.title('frequency vs d')
 
