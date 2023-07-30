@@ -34,7 +34,7 @@ class UnstablePointsCurve:
         self.lplz = np.array(self.lplx)
         self.lpld = np.array(self.lply)
 
-    def plot_curves(self):
+    def plot_curves(self, maxx=0.2, maxy=0.2):
         func = lambda x,a,b,c: a*(x**2) + b*(x) + c
         popt = frequency_approx(self.lplz, self.lpld, func)
 
@@ -47,6 +47,8 @@ class UnstablePointsCurve:
 
         s = (r'fit = (%1.5f*$x^2$ + %1.5f*(x) +%1.5f)'% tuple(popt))
         print(popt)
+        print("max z: ", max(self.lplz))
+        print("max d: ", max(self.lpld))
 
         plt.title(s)
 
@@ -54,7 +56,7 @@ class UnstablePointsCurve:
 
         plt.xlabel('z')
         plt.ylabel('d')
-        plt.xlim(0, 0.2)
-        plt.ylim(0, 0.2)
+        plt.xlim(0, maxx)
+        plt.ylim(0, maxy)
         plt.show()
 

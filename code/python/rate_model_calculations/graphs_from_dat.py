@@ -48,6 +48,7 @@ class GraphsFromDat:
         plt.plot(self.z, self.d)
         plt.plot(self.rz, self.rd)
         plt.plot(self.lz, self.ld)
+        #plt.plot(self.lz, d_biff_iapp_2(self.lz))
 
         plt.title("rate and CB models for " + self.title)
         plt.legend(['CB model', 'rate model', 'saddle line'])
@@ -57,4 +58,35 @@ class GraphsFromDat:
 
         plt.xlim(0, 0.2)
         plt.ylim(0, 0.2)
+        plt.show()
+
+
+class MultipleGraphsFromDat:
+    def __init__(self, title):
+        self.x = []
+        self.y = []
+        self.legend = []
+        self.title = title
+
+    def add_file_to_plot(self, filename, legend):
+        filepath = os.path.join(dat_path, filename)
+        x, y = read_coordinates_from_dat(filepath, 0, 1)
+        self.x.append(x)
+        self.y.append(y)
+        self.legend.append(legend)
+
+
+    def plot(self, xmax=0.3, ymax=0.3):
+        plt.figure()
+        for i in range(len(self.x)):
+            plt.plot(self.x[i], self.y[i])
+
+        plt.title(self.title)
+        plt.legend(self.legend)
+        plt.xlabel('z')
+        plt.ylabel('d')
+
+
+        plt.xlim(0, xmax)
+        plt.ylim(0, ymax)
         plt.show()
