@@ -9,7 +9,7 @@ dat_path = pathlib.Path(__file__).parent.parent.parent.parent.joinpath("dat").as
 sys.path.append(utils_path)
 sys.path.append(dat_path)
 
-from distance_utils import frequency_approx_scaled_quad, frequency_approx
+from distance_utils import frequency_approx
 from utils import read_coordinates_from_dat
 
 class UnstablePointsCurve:
@@ -35,7 +35,35 @@ class UnstablePointsCurve:
         self.lpld = np.array(self.lply)
 
     def plot_curves(self, maxx=0.2, maxy=0.2):
-        func = lambda x,a,b,c: a*(x**2) + b*(x) + c
+        func = lambda x,a,b,c,d: a*((x+d)**2) + b*(x+d) + c
+        func1 = lambda x,a,b,c: a*((x)**2) + b*(x) + c
+        popt = frequency_approx(self.lplz, self.lpld, func1)
+
+        plt.figure()
+        plt.plot(self.hz, self.hd)
+        plt.plot(self.lplz, self.lpld)
+        plt.plot(self.lplz, func1(self.lplz, *popt))
+
+
+
+        s = (r'fit = (%1.5f*$(x)^2$ + %1.5f*(x) +%1.5f)'% tuple(popt))
+        print(popt)
+        print("max z: ", max(self.lplz))
+        print("max d: ", max(self.lpld))
+
+        plt.title(s)
+
+        plt.legend(['bifurcation', 'saddle', 'fitted curve'])
+
+        plt.xlabel('z')
+        plt.ylabel('d')
+        plt.xlim(0, maxx)
+        plt.ylim(0, maxy)
+        plt.show()
+
+    def plot_curves_with_coeffs(self, maxx=0.2, maxy=0.2, coeffs = []):
+        func = lambda x,a: coeffs[0]*((x+a)**2) + coeffs[1]*(x+a) + coeffs[0]
+        func1 = lambda x,a,b,c: a*((x)**2) + b*(x) + c
         popt = frequency_approx(self.lplz, self.lpld, func)
 
         plt.figure()
@@ -45,7 +73,7 @@ class UnstablePointsCurve:
 
 
 
-        s = (r'fit = (%1.5f*$x^2$ + %1.5f*(x) +%1.5f)'% tuple(popt))
+        s = (r'fit = (%1.5f*$(x)^2$ + %1.5f*(x) +%1.5f)'% tuple(popt))
         print(popt)
         print("max z: ", max(self.lplz))
         print("max d: ", max(self.lpld))

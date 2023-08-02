@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 utils_path = pathlib.Path(__file__).parent.parent.joinpath("utils").as_posix()
 sys.path.append(utils_path)
 
-from distance_utils import frequency_approx
+from distance_utils import frequency_approx, averaged_distance
 
 
 
@@ -107,20 +107,28 @@ class RateModelFunctions:
         self.averaged_d_biff_func_coeffs = popt
         return popt
 
+    def average_distance_freq(self, ind1, ind2, zval):
+        assert ind1 < len(self.freq_app_coeff)
+        assert ind2 < len(self.freq_app_coeff)
+        x = np.linspace(0.1, 1)
+        y1 = self.freq_iapp(ind1, zval, x)
+        y2 = self.freq_iapp(ind2, zval, x)
+        return averaged_distance(x, y1, x, y2)
+
     def plot_freq_equations(self, zval):
         legend = []
         d = np.linspace(0, 1)
 
         for i in range(len(self.current_values)):
             legend.append(r'iApp = %dmA' % (self.current_values[i]))
-        legend.append('averaged freq values')
-        legend.append('aveeraged freq equation')
+        #legend.append('averaged freq values')
+        #legend.append('aveeraged freq equation')
         plt.figure()
         for i in range(len(self.freq_app_coeff)):
             plt.plot(d, self.freq_iapp(i, zval, d))
 
-        plt.plot(d, self.averaged_freq_values(zval,d))
-        plt.plot(d, self.averaged_freq(zval,d))
+        #plt.plot(d, self.averaged_freq_values(zval,d))
+        #plt.plot(d, self.averaged_freq(zval,d))
 
 
 

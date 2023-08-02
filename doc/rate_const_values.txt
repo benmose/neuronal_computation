@@ -10,3 +10,19 @@ IApp = 4
 dconst = 0.494737
 1.824561 2.754386
 zconst = 0.9
+
+
+Oscillation Frequencies:
+
+IApp = 1
+
+
+IApp = 2
+
+
+IApp = 3
+
+cb model frequency = 0.48
+rate model frequency = 0.53
+
+IApp = 4

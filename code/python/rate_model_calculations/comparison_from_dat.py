@@ -22,7 +22,7 @@ class ComparisonFromData:
         self.iapp_str = iapp_title
 
 
-    def plot_data(self):
+    def plot_data(self, xmax = 0.3, ymax = 0.3):
         x = []
         y = []
         rx = []
@@ -43,7 +43,7 @@ class ComparisonFromData:
 
         plt.figure()
         plt.plot(z, d)
-        plt.plot(rz, ry)
+        plt.plot(rz, rd)
 
         plt.title("rate and CB models for " + self.iapp_str)
         plt.legend(['CB model', 'rate model'])
@@ -51,7 +51,7 @@ class ComparisonFromData:
         plt.ylabel('d')
 
 
-        plt.xlim(0, 0.125)
-        plt.ylim(0, 0.1)
+        plt.xlim(0, xmax)
+        plt.ylim(0, ymax)
         plt.show()
 

@@ -1,9 +1,9 @@
 import os
 import sys
+import math
 import pathlib
 import numpy as np
 import matplotlib.pyplot as plt
-
 
 utils_path = pathlib.Path(__file__).parent.parent.joinpath("utils").as_posix()
 dat_path = pathlib.Path(__file__).parent.parent.parent.parent.joinpath("dat").as_posix()
@@ -11,6 +11,7 @@ sys.path.append(utils_path)
 sys.path.append(dat_path)
 
 from utils import read_coordinates_from_dat
+from distance_utils import averaged_distance
 
 class GraphsFromDat:
     def __init__(self, title, cycle_dir, stability_dir, cb_file, rate_file, lp_file):
@@ -75,6 +76,9 @@ class MultipleGraphsFromDat:
         self.y.append(y)
         self.legend.append(legend)
 
+
+    def averaged_distance(self, ind1, ind2):
+        return averaged_distance(self.x[ind1], self.y[ind1], self.x[ind2], self.y[ind2])
 
     def plot(self, xmax=0.3, ymax=0.3):
         plt.figure()
