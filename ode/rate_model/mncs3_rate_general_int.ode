@@ -1,0 +1,54 @@
+# PARAMETERS
+p tauz=400
+p taud=100
+p iapp = 3
+
+
+
+z(0)=0.1
+d(0)=0.1
+
+
+#
+# FUNCTIONS
+#
+first_c(x)=(-0.03613657*x)+0.86373433
+second_c(x)=0.00999634*x+0.71959234
+third_c(x)=(-0.00659051*x)-0.00090384
+d_biff(x)=first_c(iapp)*(x**2)+second_c(iapp)*x+third_c(iapp)
+Freq(z,d)=0.73484029*sqrt(d-d_biff(z))-0.30128275*(d-d_biff(z))
+
+M(z, d)=if(d>=d_biff(z))then(Freq(z,d))else(0)
+#M(z,d)=Freq(z,d)
+
+dinfavg(M)=0.5*M
+zinfavg(M)=0.9*M 
+
+aux MM=M(z,d)
+aux dbf=d_biff(z)
+
+
+#
+# EQUATIONS
+#
+z'=(zinfavg(M(z,d))-z)/tauz
+d'=(dinfavg(M(z,d))-d)/taud
+mmint'=M(z,d)
+
+
+
+#
+# xpp formatting
+@ XP=z
+@ YP=d
+@ TOTAL=3000,DT=0.01
+@ MAXSTOR=8000000,BOUNDS=10000,method=runge-kutta
+@ xlo=0,xhi=1,ylo=0,yhi=1
+#
+@ NTST=250,NMAX=55000,NPR=50
+@ DS=0.2,DSMIN=0.001,DSMAX=0.3
+@ PARMIN=-30,PARMAX=400,NORMMIN=0.0,NORMMAX=10000.0
+@ AUTOVAR=V,AUTOXMIN=-25.0,AUTOXMAX=400.0,AUTOYMIN=-80.0,AUTOYMAX=55.0
+
+done  
+
