@@ -1,0 +1,97 @@
+Oscillation Frequencies:
+
+IApp = 1
+cb
+n = 46
+T = 1601.13 - 1051.01 = 550.12
+-----------
+n/T = 0.083
+------------
+
+rate
+1469.24 - 949.88 = 519.36
+40.25 - 4.025 = 36.225
+
+----------------------
+36.225/519.36 = 0.069
+----------------------
+
+IApp = 2
+cb
+the rate is variable in burst. i.e. time between spikes shorten and then
+increases so I took the average rate. (n/T).
+n = 53 spikes
+T = 1377 - 789.29 = 587.71
+
+-----------
+n/T = 0.09
+-----------
+
+rate
+1305.23 - 731.2 = 574.03
+50.57 - 6.16 = 44.41
+
+--------------------
+44.41/574.03 = 0.077
+--------------------
+
+
+IApp = 3
+
+cb
+n = 66
+T = 1434.39 - 655.35 = 779.04
+
+-----------
+n/T = 0.084
+-----------
+
+rate
+1264.23 - 615.03 = 649.2
+63.72 - 9.5 = 54.22
+-------------------
+54.22/649.2 = 0.083
+-------------------
+
+IApp = 4
+
+cb
+For z=0.1 and d=0.1 we dont get a continous burst of constant rate.
+So we approximated it on the equal distance middle peaks.
+T = 767.08 - 758.88 = 8.2
+1/T = 0.121
+
+changing initial z and d to 0.01 and 0.01 we got continous burst.
+8 peaks for 100 ms
+
+------
+80 Hz
+------
+
+
+rate
+for z=0.1 and d=0.1
+
+902.05 - 751.708 = 150.342
+48.34 - 34.12 = 14.22
+
+14.22/150.342 = 0.094
+
+
+
+init points z=0.01 and d=0.01
+
+average frequency for the whole period (3sec)
+
+2669.47 - 20.5 = 2648.97
+201.2 - 0
+---------------------
+201.2/2648.97 = 0.076
+---------------------
+
+More precice taking the next rise in the integral which matches the next
+burst
+2669.47 - 922.555 = 1767.42
+201.2 - 71.1 = 130.1
+130.1/1767.42 = 0.073
+

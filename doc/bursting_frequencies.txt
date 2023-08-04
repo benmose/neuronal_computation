@@ -1,0 +1,38 @@
+Iapp = 1
+
+cb
+1Hz
+
+rate
+2Hz
+
+iapp = 2
+cb
+2Hz
+
+rate
+3Hz
+
+iapp = 3
+cb
+3Hz
+T = 656.036 - 136.67 = 519.366
+
+1/T =  0.001925 = 2Hz
+
+rate
+3Hz
+1571.75 - 
+
+iapp = 4
+cb
+2Hz
+
+rate
+0Hz
+
+RK45 matlab
+to find the equivalent of rk45 ode solver for python and check its
+ efficiency
+
+ 
