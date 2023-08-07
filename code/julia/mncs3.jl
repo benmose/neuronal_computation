@@ -38,9 +38,42 @@ D(z) ~ (zinf(V)-z)/tauz,
 D(d) ~ (dinfe(V)-d)/taud ]
 
 @named de = ODESystem(eqs)
-#van = ODEFunction(de, [V, h, n, z, d], [])
-prob = ODEProblem(de, [V => -52.0,h => 0.4,n => 0.1, z => 0.1,d => 0.1, Iapp => 1], (0.0, 6000.0))
+
+prob = ODEProblem(de, [V => -52.0,h => 0.4,n => 0.1, z => 0.1,d => 0.1, Iapp => 1.6], (0.0, 6000.0))
 sol = solve(prob,abstol=1e-8,reltol=1e-8)
 
 using Plots
-plot(sol)
+
+zarr = []
+darr = []
+varr = []
+for i in 1:length(sol)
+    push!(zarr, sol[i][4])
+    push!(darr, sol[i][5])
+    push!(varr, sol[i][1])
+end
+
+
+using Peaks
+
+t = sol.t
+y = varr
+
+pks, vals = findmaxima(y)
+
+pks_diff = []
+
+for i in 1:length(pks)-1
+    push!(pks_diff, pks[i+1]-pks[i])
+end
+
+pks_sorted = sort(pks_diff, rev=true)
+
+pks_avg_delta = sum(pks_sorted)/length(pks_sorted)
+
+burst_period = pks_sorted[2]
+threshold = 20
+if (burst_period - pks_avg_delta) > threshold
+    println("Frequency of burst is:")
+    println(1000/burst_period, " Hz")
+end
