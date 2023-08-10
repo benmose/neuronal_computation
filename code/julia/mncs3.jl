@@ -1,4 +1,7 @@
+
 using DifferentialEquations, ModelingToolkit
+using Peaks
+
 
 @parameters Iapp
 
@@ -39,41 +42,70 @@ D(d) ~ (dinfe(V)-d)/taud ]
 
 @named de = ODESystem(eqs)
 
-prob = ODEProblem(de, [V => -52.0,h => 0.4,n => 0.1, z => 0.1,d => 0.1, Iapp => 1.6], (0.0, 6000.0))
-sol = solve(prob,abstol=1e-8,reltol=1e-8)
 
 using Plots
 
-zarr = []
-darr = []
-varr = []
-for i in 1:length(sol)
-    push!(zarr, sol[i][4])
-    push!(darr, sol[i][5])
-    push!(varr, sol[i][1])
+function burst_freq_cb_vec(iapp)
+    prob = ODEProblem(de, [V => -52.0,h => 0.4,n => 0.1, z => 0.1,d => 0.1, Iapp => iapp], (0.0, 6000.0))
+    sol = solve(prob,abstol=1e-8,reltol=1e-8)
+
+    zarr = []
+    darr = []
+    varr = []
+    for i in 1:length(sol)
+        push!(zarr, sol[i][4])
+        push!(darr, sol[i][5])
+        push!(varr, sol[i][1])
+    end
+    return sol.t, varr
 end
 
+function burst_freq_cb(iapp)
+    t, y = burst_freq_cb_vec(iapp)
+    pks_times = []
+    for i in eachindex(y)
+        if y[i] > 0
+            push!(pks_times, t[i])
+        end
+    end
 
-using Peaks
+    pks, vals = findmaxima(y)
 
-t = sol.t
-y = varr
+    pks_diff = []
 
-pks, vals = findmaxima(y)
+    for i in 1:length(pks_times)-1
+        push!(pks_diff, pks_times[i+1]-pks_times[i])
+    end
 
-pks_diff = []
+    pks_sorted = sort(pks_diff, rev=true)
+    println("freq interval cb")
+    println(pks_sorted[1:10])
 
-for i in 1:length(pks)-1
-    push!(pks_diff, pks[i+1]-pks[i])
+    pks_avg_delta = sum(pks_sorted)/length(pks_sorted)
+
+    burst_period = pks_sorted[2]
+    threshold = 20
+    if (burst_period - pks_avg_delta) > threshold
+        return 1000/burst_period
+    end
+    return 0 
 end
 
-pks_sorted = sort(pks_diff, rev=true)
+#freq = burst_freq(de, 1.001)
+#println(pks)
+#println("cb: ", 1.001)
+#println(freq)
+#plot(t,y)
+#plotpeaks(t, y, peaks=pks, prominences=true, widths=true)
 
-pks_avg_delta = sum(pks_sorted)/length(pks_sorted)
-
-burst_period = pks_sorted[2]
-threshold = 20
-if (burst_period - pks_avg_delta) > threshold
-    println("Frequency of burst is:")
-    println(1000/burst_period, " Hz")
+function create_burst_freq_array_cb(n)
+    freq_arr = []
+    iapp_arr = []
+    iapp_ret = []
+    for i in 1:0.1:n
+        push!(iapp_ret, i)
+        push!(freq_arr, burst_freq(de, i))
+    end
+    return iapp_ret, freq_arr
 end
+

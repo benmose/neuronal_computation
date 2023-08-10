@@ -94,9 +94,9 @@ aux dinfex=dinfe(v)
 # xpp formatting
 @ XP=t
 @ YP=V
-@ TOTAL=1000,DT=0.01
+@ TOTAL=3000,DT=0.01
 @ MAXSTOR=8000000,BOUNDS=10000,method=runge-kutta
-@ xlo=0,xhi=1000,ylo=-92,yhi=53
+@ xlo=0,xhi=3000,ylo=-92,yhi=53
 #
 @ NTST=250,NMAX=55000,NPR=50
 @ DS=0.2,DSMIN=0.001,DSMAX=0.3
