@@ -60,7 +60,7 @@ function burst_freq_cb_vec(iapp)
     return sol.t, varr
 end
 
-function burst_freq_cb(iapp)
+function burst_freq_cb(iapp, threshold = 20)
     t, y = burst_freq_cb_vec(iapp)
     pks_times = []
     for i in eachindex(y)
@@ -69,26 +69,27 @@ function burst_freq_cb(iapp)
         end
     end
 
-    pks, vals = findmaxima(y)
-
     pks_diff = []
 
     for i in 1:length(pks_times)-1
-        push!(pks_diff, pks_times[i+1]-pks_times[i])
+        diff = pks_times[i+1]-pks_times[i]
+        if diff > threshold
+            push!(pks_diff, diff)
+        end
     end
 
     pks_sorted = sort(pks_diff, rev=true)
     println("freq interval cb")
-    println(pks_sorted[1:10])
+    println(pks_sorted)
 
-    pks_avg_delta = sum(pks_sorted)/length(pks_sorted)
+    #pks_avg_delta = sum(pks_sorted)/length(pks_sorted)
 
-    burst_period = pks_sorted[2]
-    threshold = 20
-    if (burst_period - pks_avg_delta) > threshold
-        return 1000/burst_period
+    if length(pks_sorted) > 2
+        burst_period = pks_sorted[2]
+    else
+        return 0
     end
-    return 0 
+    return 1000/burst_period
 end
 
 #freq = burst_freq(de, 1.001)
@@ -98,13 +99,13 @@ end
 #plot(t,y)
 #plotpeaks(t, y, peaks=pks, prominences=true, widths=true)
 
-function create_burst_freq_array_cb(n)
+function create_burst_freq_array_cb(start, endpoint)
     freq_arr = []
     iapp_arr = []
     iapp_ret = []
-    for i in 1:0.1:n
+    for i in start:0.1:endpoint
         push!(iapp_ret, i)
-        push!(freq_arr, burst_freq(de, i))
+        push!(freq_arr, burst_freq_cb(i))
     end
     return iapp_ret, freq_arr
 end

@@ -36,14 +36,19 @@ end
 
     
 function Freq(z,d,iapp)
-    # ifelse((d-d_biff(z,iapp) < 0), print_values, println(""))
-    println("z: ",z, " d: ", d, " dbiff: ", d_biff(z,iapp))
     return 0.73484029*sqrt(d-d_biff(z,iapp))-0.30128275*(d-d_biff(z,iapp))
 end
 
 function M(z, d, iapp)
     return ifelse(d >= d_biff(z,iapp), Freq(z,d,iapp), 0)
     #println(result)
+end
+
+function compute_frequency(z, d, iapp)
+    if d >= d_biff(z,iapp)
+        return 0.73484029*sqrt(d-d_biff(z,iapp))-0.30128275*(d-d_biff(z,iapp))
+    end
+    return 0
 end
 
 dinfavg(M)=0.5*M
@@ -74,41 +79,71 @@ function burst_freq_rate_vec(iapp)
     for i in 1:length(sol)
         push!(zarr, sol[i][1])
         push!(darr, sol[i][2])
-        d_b_val = d_biff(sol[i][1], 1)
-        # if (sol[i][2] - d_b_val > 0)
-            mval = M(sol[i][1], sol[i][2], 1)
-        # else
-        #     mval = 0
-        # end
-            push!(freq_arr, mval)
-            push!(freq_time, sol.t[i])
+        mval = compute_frequency(sol[i][1], sol[i][2], iapp)
+        push!(freq_arr, mval)
+        push!(freq_time, sol.t[i])
     end
     return freq_time, freq_arr
 end
 
+function find_first_zero_before_maxima(val_arr, max_time_index)
+    i = max_time_index
+    while i >= 1 && val_arr[i] > 0
+        i = i - 1
+    end
+
+    if i == 1
+        return -1
+    end
+
+    while i >= 1 && val_arr[i] == 0
+        i = i - 1
+    end
+
+    return i
+end
+
+function find_first_fractional_value_before_maxima(val_arr, max_time_index, fraction)
+    i = max_time_index
+    while i >= 1 && val_arr[i] > val_arr[max_time_index]*fraction
+        i = i - 1
+    end
+    return i
+end
 function zero_times(iapp)
     freq_time, freq_arr = burst_freq_rate_vec(iapp)
     pks_times = []
     pks, vals = findmaxima(freq_arr)
-    println("pks")
-    println(pks)
     for i in eachindex(pks)
         push!(pks_times, freq_time[pks[i]])
     end
     
-    return pks_times
+    return pks, pks_times, freq_arr, freq_time
 end
 
-function burst_freq_rate(iapp)
-    pks_times = zero_times(iapp)
+function burst_freq_rate(iapp, fraction = 0.7)
+    pks, pks_times, vals, times = zero_times(iapp)
     pks_diff = []
-
+    zero_val_arr = Set([])
+ 
     if length(pks_times) <= 1
         return 0
     end
 
-    for i in 1:length(pks_times)-1
-        push!(pks_diff, pks_times[i+1]-pks_times[i])
+    for i in 1:length(pks)-1
+        zero_val_index = find_first_zero_before_maxima(vals, pks[i])
+        push!(zero_val_arr, zero_val_index)
+        fractional_val_index = find_first_fractional_value_before_maxima(vals, pks[i], fraction)
+        println("zero time")
+        println(times[zero_val_index])
+        println(fraction, " max time")
+        println(times[fractional_val_index])
+        push!(pks_diff, times[fractional_val_index] - times[zero_val_index])
+    end
+
+    if length(zero_val_arr) <= 2
+        println("only one zero interval")
+        return 0
     end
 
     pks_sorted = sort(pks_diff, rev=true)
@@ -132,12 +167,34 @@ function burst_freq_rate(iapp)
 end
 
 
-function create_burst_freq_array_rate(n)
+function create_burst_freq_array_rate(start, endpoint, fraction)
     freq_arr = []
     iapp_ret = []
-    for i in 1:0.1:n
+    frac = 1
+    for i in start:0.1:endpoint
+        if fraction < 0
+            if i >= 1 && i < 1.1 
+                frac = 0.9
+            elseif i >= 1.1 && i < 2
+                frac = 0.8
+            elseif i >=2 && i < 2.2
+                frac = 0.775
+            elseif i >= 2.2 && i < 2.5
+                frac = 0.7
+            elseif i >= 2.5 && i < 2.8
+                frac = 0.55
+            elseif i >= 2.8 && i < 2.9
+                frac = 0.32
+            elseif i >= 2.9 && i < 3
+                frac = 0.2
+            else
+                frac = 0.1
+            end
+        else
+            frac = fraction
+        end
         push!(iapp_ret, i)
-        push!(freq_arr, burst_freq_rate(i))
+        push!(freq_arr, burst_freq_rate(i, frac))
     end
     return iapp_ret, freq_arr
 end
