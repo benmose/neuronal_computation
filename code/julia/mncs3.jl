@@ -1,6 +1,7 @@
 
 using DifferentialEquations, ModelingToolkit
 using Peaks
+include("find_maxima.jl")
 
 
 @parameters Iapp
@@ -60,22 +61,49 @@ function burst_freq_cb_vec(iapp)
     return sol.t, varr
 end
 
-function burst_freq_cb(iapp, threshold = 20)
-    t, y = burst_freq_cb_vec(iapp)
-    pks_times = []
-    for i in eachindex(y)
-        if y[i] > 0
-            push!(pks_times, t[i])
+function find_peaks_time_after_zeroes(vals, times, threshold=20)
+    #peak_indices, _ = findmaxima(vals)
+    peaks_tuple_array = []
+    points_array = find_points_for_maxima(times, vals)
+    for i in eachindex(points_array)
+        peak_tuple = find_maxima_by_parabola(points_array[i])
+        push!(peaks_tuple_array, peak_tuple)
+    end
+    
+    start_of_burst_peak_times = []
+    #for i in 2:length(peak_indices)
+    for i in eachindex(peaks_tuple_array)
+        if firstindex(peaks_tuple_array) == i
+            continue
+        end
+        previous_peak_time = peaks_tuple_array[i-1][1]
+        #current_peak_time = times[peak_indices[i]]
+        current_peak_time = peaks_tuple_array[i][1]
+        if (current_peak_time - previous_peak_time) > threshold
+            push!(start_of_burst_peak_times, current_peak_time)
         end
     end
+    return start_of_burst_peak_times
+end
+
+function burst_freq_cb(iapp, threshold = 20)
+    t, y = burst_freq_cb_vec(iapp)
+    pks_times = find_peaks_time_after_zeroes(y, t, threshold)
+    #println(pks_times)
+    # pks_times = []
+    # for i in eachindex(y)
+    #     if y[i] > 0
+    #         push!(pks_times, t[i])
+    #     end
+    # end
 
     pks_diff = []
 
     for i in 1:length(pks_times)-1
         diff = pks_times[i+1]-pks_times[i]
-        if diff > threshold
-            push!(pks_diff, diff)
-        end
+        # if diff > threshold
+        push!(pks_diff, diff)
+        # end
     end
 
     pks_sorted = sort(pks_diff, rev=true)
@@ -101,11 +129,10 @@ end
 
 function create_burst_freq_array_cb(start, endpoint)
     freq_arr = []
-    iapp_arr = []
     iapp_ret = []
     for i in start:0.1:endpoint
         push!(iapp_ret, i)
-        push!(freq_arr, burst_freq_cb(i))
+        push!(freq_arr, burst_freq_cb(i,100))
     end
     return iapp_ret, freq_arr
 end

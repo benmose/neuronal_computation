@@ -2,6 +2,7 @@ using DifferentialEquations, ModelingToolkit
 using Peaks
 using IfElse
 using Plots
+include("find_maxima.jl")
 
 @parameters Iapp
 
@@ -113,38 +114,72 @@ end
 function zero_times(iapp)
     freq_time, freq_arr = burst_freq_rate_vec(iapp)
     pks_times = []
-    pks, vals = findmaxima(freq_arr)
+    pks, _ = findmaxima(freq_arr)
     for i in eachindex(pks)
         push!(pks_times, freq_time[pks[i]])
     end
     
-    return pks, pks_times, freq_arr, freq_time
+    #return pks, pks_times, freq_arr, freq_time
+    println(pks_times)
+    return pks_times
+end
+
+function return_peaks_tuple_array(iapp)
+    times, vals = burst_freq_rate_vec(iapp)
+    peaks_tuple_array = []
+    points_array = find_points_for_maxima(times, vals)
+    for i in eachindex(points_array)
+        peak_tuple = find_maxima_by_parabola(points_array[i])
+        push!(peaks_tuple_array, peak_tuple)
+    end
+    return peaks_tuple_array
 end
 
 function burst_freq_rate(iapp, fraction = 0.7)
-    pks, pks_times, vals, times = zero_times(iapp)
-    pks_diff = []
-    zero_val_arr = Set([])
+    #pks, pks_times, vals, times = zero_times(iapp)
+    # pks_times = zero_times(iapp)
+    # pks_diff = []
+    # zero_val_arr = Set([])
  
-    if length(pks_times) <= 1
-        return 0
+    # if length(pks_times) <= 1
+    #     return 0
+    # end
+    peaks_tuple_array = return_peaks_tuple_array(iapp)
+    pks_diff = []
+    for i in eachindex(peaks_tuple_array)
+        if i == 1
+            continue
+        end
+        previous_peak_time = peaks_tuple_array[i-1][1]
+        #current_peak_time = times[peak_indices[i]]
+        current_peak_time = peaks_tuple_array[i][1]
+        #if (current_peak_time - previous_peak_time) > threshold
+        push!(pks_diff, current_peak_time - previous_peak_time)
+        #end
     end
 
-    for i in 1:length(pks)-1
-        zero_val_index = find_first_zero_before_maxima(vals, pks[i])
-        push!(zero_val_arr, zero_val_index)
-        fractional_val_index = find_first_fractional_value_before_maxima(vals, pks[i], fraction)
-        println("zero time")
-        println(times[zero_val_index])
-        println(fraction, " max time")
-        println(times[fractional_val_index])
-        push!(pks_diff, times[fractional_val_index] - times[zero_val_index])
-    end
 
-    if length(zero_val_arr) <= 2
-        println("only one zero interval")
-        return 0
-    end
+    # for i in 1:length(pks)-1
+    #     zero_val_index = find_first_zero_before_maxima(vals, pks[i])
+    #     push!(zero_val_arr, zero_val_index)
+    #     fractional_val_index = find_first_fractional_value_before_maxima(vals, pks[i], fraction)
+    #     println("zero time")
+    #     println(times[zero_val_index])
+    #     println(fraction, " max time")
+    #     println(times[fractional_val_index])
+    #     push!(pks_diff, times[fractional_val_index] - times[zero_val_index])
+    # end
+
+    # if length(zero_val_arr) <= 2
+    #     println("only one zero interval")
+    #     return 0
+    # end
+    # for i in 1:length(pks_times)-1
+    #     diff = pks_times[i+1]-pks_times[i]
+    #     # if diff > threshold
+    #     push!(pks_diff, diff)
+    #     # end
+    # end
 
     pks_sorted = sort(pks_diff, rev=true)
     println("sorted intervals rate")
