@@ -16,11 +16,25 @@ include("find_maxima.jl")
 # savefig(p, "rate_burst_freq.pdf")
 
 
-function plot_comparison(start, endpoint, fraction, filename = "cb_rate_comparison.pdf")
-    x, y = create_burst_freq_array_cb(start, endpoint)
-    xr, yr = create_burst_freq_array_rate(start, endpoint, fraction)
+function plot_comparison(start, endpoint, fraction, filename = "cb_rate_comparison.pdf", steps=0.1, plottype=:line, threshold=100)
+    x, y = create_burst_freq_array_cb(start, endpoint, steps, threshold)
+    xr, yr = create_burst_freq_array_rate(start, endpoint, fraction, steps)
 
-    p = plot(x, y, label="CB")
+    p = plot(x, y, seriestype=plottype, label="CB")
+    plot!(xr, yr, label="rate")
+    title!("CB model vs rate model burst frequencies per current")
+    xlabel!("Iapp")
+    ylabel!("Hz")
+    plot!(legend=:outerbottom, legendcolumns=3)
+    path = "/Users/rammantzur/work/github_rate_model/media/bursts/"
+    savefig(p, path * filename)
+end
+
+function plot_comparison_without_transient(start, endpoint, filename = "cb_rate_comparison.pdf", steps=0.1, plottype=:line, threshold=100)
+    x, y = create_burst_freq_array_cb_with_trasient_removed(start, endpoint, steps, threshold)
+    xr, yr = create_burst_freq_array_rate_with_transient_removed(start, endpoint, steps)
+
+    p = plot(x, y, seriestype=plottype, label="CB")
     plot!(xr, yr, label="rate")
     title!("CB model vs rate model burst frequencies per current")
     xlabel!("Iapp")
@@ -56,18 +70,52 @@ function plot_freq_graph_cb(iapp, filename)
 
 end
 
-function plot_side_by_side_freq_graphs(iapp, filename)
-    path = "/Users/rammantzur/work/github_rate_model/media/bursts"
-    x,y = burst_freq_rate_vec(iapp)
-    peaks = return_peaks_tuple_array(iapp)
+function burst_size_cb(start, endpoint, filename = "cb_rate_comparison.pdf", steps=0.1, plottype=:line, threshold=100)
+    path = "/Users/rammantzur/work/github_rate_model/media/bursts/"
+    x,y,z = create_burst_size_array_cb(start, endpoint, steps, threshold)
+    p = plot(x, y, seriestype=plottype, label="CB bursts_size")
+    plot!(x, z, seriestype=:line, label="CB time between bursts")
+    title!("CB model burst sizes per current")
+    xlabel!("Iapp")
+    ylabel!("time")
+    plot!(legend=:outerbottom, legendcolumns=3)
+    path = "/Users/rammantzur/work/github_rate_model/media/bursts/"
+    savefig(p, path * filename)
+end
+
+function mound_size_rate(start, endpoint, filename = "cb_rate_comparison.pdf", steps=0.1, plottype=:line, threshold=100)
+    path = "/Users/rammantzur/work/github_rate_model/media/bursts/"
+    xr,yr,zr = create_freq_mounds_size_array_rate(start, endpoint, steps)
+    p = plot(xr, yr, seriestype=plottype, label="Rate freq non-zero size")
+    plot!(xr, zr, seriestype=:line, label="Rate time between non-zeroes")
+
+    title!("Rate model non-zero-areas sizes per current")
+    xlabel!("Iapp")
+    ylabel!("time")
+    plot!(legend=:outerbottom, legendcolumns=3)
+    path = "/Users/rammantzur/work/github_rate_model/media/bursts/"
+    savefig(p, path * filename)
+end
+
+
+function peaks_coordinates_tuples_array_to_spearate_arrays(iapp, func)
+    peaks = func(iapp)
     peaks_x = []
     peaks_y = []
-    p1 = plot(x, y, label="rate model")
     for i in eachindex(peaks)
         push!(peaks_x, peaks[i][1])
         push!(peaks_y, peaks[i][2])
     end
-    plot!(peaks_x, peaks_y, seriestype=:scatter, label="peaks")
+    return peaks_x, peaks_y
+end
+
+function plot_side_by_side_freq_graphs(iapp, filename, show_peaks=false)
+    path = "/Users/rammantzur/work/github_rate_model/media/bursts"
+    x,y = burst_freq_rate_vec(iapp)
+    peaks_x, peaks_y = 
+        peaks_coordinates_tuples_array_to_spearate_arrays(iapp, return_peaks_tuple_array_rate)
+    p1 = plot(x, y, label="rate model")
+    plot!(peaks_x, peaks_y, seriestype=:scatter, label="rate peaks")
     #plot!(xr, yr, label="rate")
     title!("rate model frequencies for current " * string(iapp))
     xlabel!("time")
@@ -76,6 +124,12 @@ function plot_side_by_side_freq_graphs(iapp, filename)
 
     x,y = burst_freq_cb_vec(iapp)
     p2 = plot(x, y, label="cb model")
+    if show_peaks
+        peaks_x, peaks_y = 
+        peaks_coordinates_tuples_array_to_spearate_arrays(iapp, return_peaks_tuple_array_cb)
+        plot!(peaks_x, peaks_y, seriestype=:scatter, label="cb peaks")
+    end
+
     #plot!(xr, yr, label="rate")
     title!("CB model frequencies for current " * string(iapp))
     xlabel!("time")
@@ -90,10 +144,10 @@ function plot_side_by_side_freq_graphs(iapp, filename)
 end
 
 # zero_times(1.75)
-# t, y = burst_freq_cb_vec(1.75)
-# find_peaks_time_after_zeroes(y, t, 100)#plot_comparison(10)
-# fr = burst_freq_rate(1.75, 1)
-# fc = burst_freq_cb(1.75)
+#t, y = burst_freq_cb_vec(0)
+#find_peaks_time_after_zeroes(y, t, 100)#plot_comparison(10)
+# fr = burst_freq_rate(0, 1)
+# fc = burst_freq_cb(0, 100)
 # println("rate freq")
 # println(fr)
 # println("cb freq")
@@ -108,15 +162,25 @@ end
 #plot_comparison(2.5, 2.8, 0.55)
 #plot_comparison(2.8, 2.9, 0.32)
 #plot_comparison(2.9, 3, 0.2)
-#plot_comparison(1,3,1, "test_burst_freq_cb_vs_rate_threshold_100.pdf")
+#plot_comparison(0,3,1, "0_1_step_0.01_burst_freq_cb_vs_rate_threshold_100.pdf", 0.01, :line, 100)
 
 
 #create_burst_freq_array_cb()
 #burst_freq_cb_vec(1.0)
 #burst_freq_cb(1.0)
 
-plot_side_by_side_freq_graphs(2, "peaks_cb_vs_rate_bursts_3uA.pdf")
+#plot_side_by_side_freq_graphs(0.1, "both_peaks_cb_vs_rate_bursts_0.1uA.pdf", true)
 
 # t, y = burst_freq_cb_vec(1.75)
 # points_array = find_points_for_maxima(t,y)
 # find_maxima_by_parabola(points_array[1])
+
+#array_to_print = return_burst_size_in_time(2)
+#println(array_to_print)
+
+#mound_size_rate(0,3,"mound_size_comparison.pdf")
+#burst_size_cb(0,3,"burst_size_comparison.pdf")
+# x, y = return_peaks_time_value_arrays_rate_with_transient_removed(2)
+# plot(x,y, seriestype=:scatter)
+
+plot_comparison_without_transient(0,3, "burst_comarison_without_transient.pdf")

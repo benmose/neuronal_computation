@@ -1,6 +1,7 @@
 
 using DifferentialEquations, ModelingToolkit
 using Peaks
+using Statistics
 include("find_maxima.jl")
 
 
@@ -61,23 +62,48 @@ function burst_freq_cb_vec(iapp)
     return sol.t, varr
 end
 
-function find_peaks_time_after_zeroes(vals, times, threshold=20)
-    #peak_indices, _ = findmaxima(vals)
+function remove_transient_values(times, vals)
+    ret_times = []
+    ret_vals = []
+    for i in eachindex(times)
+        if times[i] > 500
+            ret_times = times[i:1:end]
+            ret_vals = vals[i:1:end]
+            break
+        end
+    end
+    return ret_times, ret_vals
+end
+
+function return_peaks_tuple_array_cb(iapp, remove_transient=false)
+    times, vals = burst_freq_cb_vec(iapp)
+    if remove_transient
+        times, vals = remove_transient_values(times, vals)
+    end
     peaks_tuple_array = []
     points_array = find_points_for_maxima(times, vals)
     for i in eachindex(points_array)
         peak_tuple = find_maxima_by_parabola(points_array[i])
         push!(peaks_tuple_array, peak_tuple)
     end
-    
+    return peaks_tuple_array
+end
+
+function return_peaks_tuple_array_cb_with_transient_remove(iapp)
+    return return_peaks_tuple_array_cb(iapp, true)
+end
+
+function find_peaks_time_after_zeroes(iapp, threshold=20, remove_transient=false)
+    peaks_tuple_array = return_peaks_tuple_array_cb(iapp)
+    if remove_transient
+        peaks_tuple_array = return_peaks_tuple_array_cb_with_transient_remove(iapp)
+    end  
     start_of_burst_peak_times = []
-    #for i in 2:length(peak_indices)
     for i in eachindex(peaks_tuple_array)
         if firstindex(peaks_tuple_array) == i
             continue
         end
         previous_peak_time = peaks_tuple_array[i-1][1]
-        #current_peak_time = times[peak_indices[i]]
         current_peak_time = peaks_tuple_array[i][1]
         if (current_peak_time - previous_peak_time) > threshold
             push!(start_of_burst_peak_times, current_peak_time)
@@ -86,9 +112,53 @@ function find_peaks_time_after_zeroes(vals, times, threshold=20)
     return start_of_burst_peak_times
 end
 
-function burst_freq_cb(iapp, threshold = 20)
-    t, y = burst_freq_cb_vec(iapp)
-    pks_times = find_peaks_time_after_zeroes(y, t, threshold)
+function return_burst_size_in_time(iapp, threshold=100)
+    peaks_tuple_array = return_peaks_tuple_array_cb_with_transient_remove(iapp)    
+    bursts_size_array = []
+    time_between_peaks_array = []
+    time_of_first_peak_in_burst = peaks_tuple_array[1][1]
+    for i in eachindex(peaks_tuple_array)
+        if firstindex(peaks_tuple_array) == i
+            continue
+        end
+
+        if lastindex(peaks_tuple_array) == i
+            continue
+        end
+        previous_peak_time = peaks_tuple_array[i-1][1]
+        current_peak_time = peaks_tuple_array[i][1]
+        next_peak_time = peaks_tuple_array[i+1][1]
+        if (current_peak_time - previous_peak_time) > threshold
+            time_of_first_peak_in_burst = current_peak_time
+            time_between_bursts = current_peak_time - previous_peak_time
+            push!(time_between_peaks_array, time_between_bursts)
+        end
+
+        if (next_peak_time - current_peak_time) > threshold
+            burst_size = current_peak_time - time_of_first_peak_in_burst
+            push!(bursts_size_array, burst_size)
+        end
+    end
+
+    if length(bursts_size_array) > 1
+        bursts_size_array = bursts_size_array[2:1:end]
+    end
+
+    if length(time_between_peaks_array) > 1
+        time_between_peaks_array = time_between_peaks_array[2:1:end]
+    end
+
+    return mean(bursts_size_array), mean(time_between_peaks_array)
+ end
+
+function return_time_between_bursts(iapp, threshold=20)
+end
+
+
+function burst_freq_cb(iapp, threshold = 20, remove_transient=false)
+    pks_times = find_peaks_time_after_zeroes(iapp, threshold, remove_transient)
+    println("pks times")
+    println(pks_times)
     #println(pks_times)
     # pks_times = []
     # for i in eachindex(y)
@@ -112,28 +182,43 @@ function burst_freq_cb(iapp, threshold = 20)
 
     #pks_avg_delta = sum(pks_sorted)/length(pks_sorted)
 
-    if length(pks_sorted) > 2
+    if length(pks_sorted) > 1
         burst_period = pks_sorted[2]
+    elseif length(pks_sorted) == 1
+            burst_period = pks_sorted[1]
     else
         return 0
     end
     return 1000/burst_period
 end
 
-#freq = burst_freq(de, 1.001)
-#println(pks)
-#println("cb: ", 1.001)
-#println(freq)
-#plot(t,y)
-#plotpeaks(t, y, peaks=pks, prominences=true, widths=true)
+function create_burst_freq_array_cb_with_trasient_removed(start, endpoint, step, threshold)
+    return create_burst_freq_array_cb(start, endpoint, step, threshold, true)
+end
 
-function create_burst_freq_array_cb(start, endpoint)
+function create_burst_freq_array_cb(start, endpoint, step, threshold, remove_transient=false)
     freq_arr = []
     iapp_ret = []
-    for i in start:0.1:endpoint
+    for i in start:step:endpoint
         push!(iapp_ret, i)
-        push!(freq_arr, burst_freq_cb(i,100))
+        if remove_transient
+            push!(freq_arr, burst_freq_cb(i, threshold, true))
+        else
+            push!(freq_arr, burst_freq_cb(i,threshold))
+        end
     end
     return iapp_ret, freq_arr
 end
 
+function create_burst_size_array_cb(start, endpoint, step, threshold)
+    burst_size_arr = []
+    time_between_bursts_arr = []
+    iapp_ret = []
+    for i in start:step:endpoint
+        push!(iapp_ret, i)
+        burst_size, time_between_bursts = return_burst_size_in_time(i,threshold)
+        push!(burst_size_arr, burst_size)
+        push!(time_between_bursts_arr, time_between_bursts)
+    end
+    return iapp_ret, burst_size_arr, time_between_bursts_arr
+end
