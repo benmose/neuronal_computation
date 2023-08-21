@@ -218,7 +218,7 @@ end
 function burst_freq_rate(iapp, remove_transient=false)
     peaks_tuple_array = return_peaks_tuple_array_rate(iapp)
     if remove_transient
-        peaks_tuple_array = return_peaks_time_value_arrays_rate_with_transient_removed(iapp)
+        peaks_tuple_array = return_peaks_tuple_array_rate_with_transient_removed(iapp)
     end
     pks_diff = []
     for i in eachindex(peaks_tuple_array)
