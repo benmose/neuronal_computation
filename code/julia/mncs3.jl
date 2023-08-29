@@ -5,13 +5,13 @@ using Statistics
 include("find_maxima.jl")
 
 
-@parameters Iapp
+@parameters Iapp taud tauz
 
-@constants gCad=1.0 taud=100 gKCa=1.0 mu=0.01 eps=0.012
+@constants gCad=1.0 gKCa=1.0 mu=0.01 eps=0.012
 @constants THcm=-28.0 Kcm=-3.0 gm=3.5 gnap=0.04 gna=100.0 gkdr=20.0 gl=0.12
 @constants gh=0.05 Cm=1 Vna=55.0 Vk=-90 Vl=-70 Vh=-27.4 VCa=120 THm=-28.0
 @constants Km=-7.8 THh=-50.0 Kh=7.0 THn=-23.0 Kn=-15.0 THp=-53.0 Kp=-5.0
-@constants THz=-28.0 Kz=-3.0 tauz=400.0 THd=12.0 Kd=-12.0
+@constants THz=-28.0 Kz=-3.0 THd=12.0 Kd=-12.0
 
 Il(V)=gl*(V-Vl) 
 Ina(V,h)=gna*(minf(V)^3)*h*(V-Vna)
@@ -47,9 +47,9 @@ D(d) ~ (dinfe(V)-d)/taud ]
 
 using Plots
 
-function burst_freq_cb_vec(iapp)
-    prob = ODEProblem(de, [V => -52.0,h => 0.4,n => 0.1, z => 0.1,d => 0.1, Iapp => iapp], (0.0, 6000.0))
-    sol = solve(prob,abstol=1e-8,reltol=1e-8)
+function burst_freq_cb_vec(iapp, Taud=100, Tauz=400)
+    prob = ODEProblem(de, [V => -52.0,h => 0.4,n => 0.1, z => 0.1,d => 0.1, Iapp => iapp, taud => Taud, tauz => Tauz], (0.0, 6000.0))
+    sol = solve(prob,abstol=1e-15,reltol=1e-15)
 
     zarr = []
     darr = []
@@ -66,7 +66,7 @@ function remove_transient_values(times, vals)
     ret_times = []
     ret_vals = []
     for i in eachindex(times)
-        if times[i] > 500
+        if times[i] > 20
             ret_times = times[i:1:end]
             ret_vals = vals[i:1:end]
             break
@@ -75,8 +75,8 @@ function remove_transient_values(times, vals)
     return ret_times, ret_vals
 end
 
-function return_peaks_tuple_array_cb(iapp, remove_transient=false)
-    times, vals = burst_freq_cb_vec(iapp)
+function return_peaks_tuple_array_cb(iapp, taud, tauz, remove_transient=false)
+    times, vals = burst_freq_cb_vec(iapp, taud, tauz)
     if remove_transient
         times, vals = remove_transient_values(times, vals)
     end
@@ -89,15 +89,17 @@ function return_peaks_tuple_array_cb(iapp, remove_transient=false)
     return peaks_tuple_array
 end
 
-function return_peaks_tuple_array_cb_with_transient_remove(iapp)
-    return return_peaks_tuple_array_cb(iapp, true)
+function return_peaks_tuple_array_cb_with_transient_remove(iapp, taud, tauz)
+    return return_peaks_tuple_array_cb(iapp, taud, tauz, true)
 end
 
-function find_peaks_time_after_zeroes(iapp, threshold=20, remove_transient=false)
-    peaks_tuple_array = return_peaks_tuple_array_cb(iapp)
+function find_peaks_time_after_zeroes(iapp, threshold=100, taud=100, tauz=400, remove_transient=false)
+    peaks_tuple_array = return_peaks_tuple_array_cb(iapp, taud, tauz)
     if remove_transient
-        peaks_tuple_array = return_peaks_tuple_array_cb_with_transient_remove(iapp)
-    end  
+        peaks_tuple_array = return_peaks_tuple_array_cb_with_transient_remove(iapp, taud, tauz)
+    end
+    println("peaks_tuple_array") 
+    println(peaks_tuple_array)
     start_of_burst_peak_times = []
     for i in eachindex(peaks_tuple_array)
         if firstindex(peaks_tuple_array) == i
@@ -112,8 +114,8 @@ function find_peaks_time_after_zeroes(iapp, threshold=20, remove_transient=false
     return start_of_burst_peak_times
 end
 
-function return_burst_size_in_time(iapp, threshold=100)
-    peaks_tuple_array = return_peaks_tuple_array_cb_with_transient_remove(iapp)    
+function return_burst_size_in_time(iapp, taud, tauz, threshold=100)
+    peaks_tuple_array = return_peaks_tuple_array_cb_with_transient_remove(iapp, taud, tauz)    
     bursts_size_array = []
     time_between_peaks_array = []
     time_of_first_peak_in_burst = peaks_tuple_array[1][1]
@@ -155,10 +157,10 @@ function return_time_between_bursts(iapp, threshold=20)
 end
 
 
-function burst_freq_cb(iapp, threshold = 20, remove_transient=false)
-    pks_times = find_peaks_time_after_zeroes(iapp, threshold, remove_transient)
-    println("pks times")
-    println(pks_times)
+function burst_freq_cb(iapp, threshold = 100, taud=100, tauz=400, remove_transient=false)
+    pks_times = find_peaks_time_after_zeroes(iapp, threshold, taud, tauz, remove_transient)
+    #println("pks times")
+    #println(pks_times)
     #println(pks_times)
     # pks_times = []
     # for i in eachindex(y)
@@ -176,47 +178,57 @@ function burst_freq_cb(iapp, threshold = 20, remove_transient=false)
         # end
     end
 
+    println("pks_diff")
+    println(pks_diff)
     pks_sorted = sort(pks_diff, rev=true)
-    println("freq interval cb")
+    println("pks_sorted")
     println(pks_sorted)
+    #println("freq interval cb")
+    #println(pks_sorted)
 
     #pks_avg_delta = sum(pks_sorted)/length(pks_sorted)
 
     if length(pks_sorted) > 1
+        println("len > 1, period")
         burst_period = pks_sorted[2]
+        println("burst period: ", burst_period)
     elseif length(pks_sorted) == 1
+        println("len is one")
             burst_period = pks_sorted[1]
+            println("burst period: ", burst_period)
+
     else
+        println("len is: ", length(pks_sorted), " returning zero")
         return 0
     end
     return 1000/burst_period
 end
 
-function create_burst_freq_array_cb_with_trasient_removed(start, endpoint, step, threshold)
-    return create_burst_freq_array_cb(start, endpoint, step, threshold, true)
+function create_burst_freq_array_cb_with_transient_removed(start, endpoint, step, taud, tauz, threshold=100)
+    return create_burst_freq_array_cb(start, endpoint, step, threshold, taud, tauz, true)
 end
 
-function create_burst_freq_array_cb(start, endpoint, step, threshold, remove_transient=false)
+function create_burst_freq_array_cb(start, endpoint, step, threshold, taud=100, tauz=400, remove_transient=false)
     freq_arr = []
     iapp_ret = []
     for i in start:step:endpoint
         push!(iapp_ret, i)
         if remove_transient
-            push!(freq_arr, burst_freq_cb(i, threshold, true))
+            push!(freq_arr, burst_freq_cb(i, threshold, taud, tauz, true))
         else
-            push!(freq_arr, burst_freq_cb(i,threshold))
+            push!(freq_arr, burst_freq_cb(i,threshold, taud, tauz))
         end
     end
     return iapp_ret, freq_arr
 end
 
-function create_burst_size_array_cb(start, endpoint, step, threshold)
+function create_burst_size_array_cb(start, endpoint, step, taud, tauz, threshold)
     burst_size_arr = []
     time_between_bursts_arr = []
     iapp_ret = []
     for i in start:step:endpoint
         push!(iapp_ret, i)
-        burst_size, time_between_bursts = return_burst_size_in_time(i,threshold)
+        burst_size, time_between_bursts = return_burst_size_in_time(i, taud, tauz, threshold)
         push!(burst_size_arr, burst_size)
         push!(time_between_bursts_arr, time_between_bursts)
     end

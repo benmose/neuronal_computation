@@ -16,13 +16,13 @@ include("find_maxima.jl")
 # savefig(p, "rate_burst_freq.pdf")
 
 
-function plot_comparison(start, endpoint, fraction, filename = "cb_rate_comparison.pdf", steps=0.1, plottype=:line, threshold=100)
-    x, y = create_burst_freq_array_cb(start, endpoint, steps, threshold)
-    xr, yr = create_burst_freq_array_rate(start, endpoint, fraction, steps)
+function plot_comparison(start, endpoint, taud=100, tauz=400, filename = "cb_rate_comparison.pdf", steps=0.1, plottype=:line, threshold=100)
+    x, y = create_burst_freq_array_cb(start, endpoint, steps, threshold, taud, tauz)
+    xr, yr = create_burst_freq_array_rate(start, endpoint, steps, taud, tauz)
 
     p = plot(x, y, seriestype=plottype, label="CB")
     plot!(xr, yr, label="rate")
-    title!("CB model vs rate model burst frequencies per current")
+    title!("taud=" * string(taud) * " tauz=" * string(tauz))
     xlabel!("Iapp")
     ylabel!("Hz")
     plot!(legend=:outerbottom, legendcolumns=3)
@@ -30,13 +30,13 @@ function plot_comparison(start, endpoint, fraction, filename = "cb_rate_comparis
     savefig(p, path * filename)
 end
 
-function plot_comparison_without_transient(start, endpoint, filename = "cb_rate_comparison.pdf", steps=0.1, plottype=:line, threshold=100)
-    x, y = create_burst_freq_array_cb_with_trasient_removed(start, endpoint, steps, threshold)
-    xr, yr = create_burst_freq_array_rate_with_transient_removed(start, endpoint, steps)
+function plot_comparison_without_transient(start, endpoint, taud, tauz, filename = "cb_rate_comparison.pdf", steps=0.1, plottype=:line, threshold=50)
+    x, y = create_burst_freq_array_cb_with_transient_removed(start, endpoint, steps, taud, tauz, threshold)
+    xr, yr = create_burst_freq_array_rate_with_transient_removed(start, endpoint, steps, taud, tauz)
 
     p = plot(x, y, seriestype=plottype, label="CB")
     plot!(xr, yr, label="rate")
-    title!("CB model vs rate model burst frequencies per current")
+    title!("taud=" * string(taud) * " tauz=" * string(tauz))
     xlabel!("Iapp")
     ylabel!("Hz")
     plot!(legend=:outerbottom, legendcolumns=3)
@@ -98,8 +98,8 @@ function mound_size_rate(start, endpoint, filename = "cb_rate_comparison.pdf", s
 end
 
 
-function peaks_coordinates_tuples_array_to_spearate_arrays(iapp, func)
-    peaks = func(iapp)
+function peaks_coordinates_tuples_array_to_spearate_arrays(iapp, taud, tauz, func)
+    peaks = func(iapp, taud, tauz)
     peaks_x = []
     peaks_y = []
     for i in eachindex(peaks)
@@ -109,29 +109,29 @@ function peaks_coordinates_tuples_array_to_spearate_arrays(iapp, func)
     return peaks_x, peaks_y
 end
 
-function plot_side_by_side_freq_graphs(iapp, filename, show_peaks=false)
+function plot_side_by_side_freq_graphs(iapp, taud, tauz, filename, show_peaks=false)
     path = "/Users/rammantzur/work/github_rate_model/media/bursts"
-    x,y = burst_freq_rate_vec(iapp)
+    x,y = burst_freq_rate_vec(iapp, taud, tauz)
     peaks_x, peaks_y = 
-        peaks_coordinates_tuples_array_to_spearate_arrays(iapp, return_peaks_tuple_array_rate)
+        peaks_coordinates_tuples_array_to_spearate_arrays(iapp, taud, tauz, return_peaks_tuple_array_rate)
     p1 = plot(x, y, label="rate model")
     plot!(peaks_x, peaks_y, seriestype=:scatter, label="rate peaks")
     #plot!(xr, yr, label="rate")
-    title!("rate model frequencies for current " * string(iapp))
+    title!("current " * string(iapp) * " taud: " * string(taud) * " tauz: " * string(tauz))
     xlabel!("time")
     ylabel!("Hz")
     plot!(legend=:outerbottom, legendcolumns=3)
 
-    x,y = burst_freq_cb_vec(iapp)
+    x,y = burst_freq_cb_vec(iapp, taud, tauz)
     p2 = plot(x, y, label="cb model")
     if show_peaks
         peaks_x, peaks_y = 
-        peaks_coordinates_tuples_array_to_spearate_arrays(iapp, return_peaks_tuple_array_cb)
+        peaks_coordinates_tuples_array_to_spearate_arrays(iapp, taud, tauz, return_peaks_tuple_array_cb)
         plot!(peaks_x, peaks_y, seriestype=:scatter, label="cb peaks")
     end
 
     #plot!(xr, yr, label="rate")
-    title!("CB model frequencies for current " * string(iapp))
+    title!("current " * string(iapp) * " taud: " * string(taud) * " tauz: " * string(tauz))
     xlabel!("time")
     ylabel!("V")
     plot!(legend=:outerbottom, legendcolumns=3)

@@ -1,7 +1,7 @@
 # PARAMETERS
 p tauz=400
-p taud=100
-p iapp = 3
+p taud=20
+p iapp = 1
 
 
 

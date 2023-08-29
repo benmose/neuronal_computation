@@ -4,9 +4,9 @@ using IfElse
 using Plots
 include("find_maxima.jl")
 
-@parameters Iapp
+@parameters Iapp taud tauz
 
-@constants tauz=400 taud=100
+#@constants
 
 
 #
@@ -71,9 +71,9 @@ eqs_rate = [D(z) ~ (zinfavg(M(z,d,Iapp))-z)/tauz,
 
 @named de_rate = ODESystem(eqs_rate)
 
-function burst_freq_rate_vec(iapp)
-    prob = ODEProblem(de_rate, [z => 0.1,d => 0.1, Iapp => iapp], (0.0, 6000.0))
-    sol = solve(prob,abstol=1e-8,reltol=1e-8)
+function burst_freq_rate_vec(iapp, Taud=100, Tauz=400)
+    prob = ODEProblem(de_rate, [z => 0.1,d => 0.1, Iapp => iapp, taud => Taud, tauz => Tauz], (0.0, 6000.0))
+    sol = solve(prob,abstol=1e-15,reltol=1e-15)
     zarr = []
     darr = []
     freq_arr = []
@@ -123,15 +123,15 @@ function return_peaks_of_rate_values(times, vals)
     return peaks_tuple_array
 end
 
-function return_peaks_tuple_array_rate(iapp)
-    times, vals = burst_freq_rate_vec(iapp)
+function return_peaks_tuple_array_rate(iapp, taud, tauz)
+    times, vals = burst_freq_rate_vec(iapp, taud, tauz)
     return return_peaks_of_rate_values(times, vals)
 end
 
-function burst_freq_rate_vec_with_transient_removed(iapp)
-    times, vals = burst_freq_rate_vec(iapp)
+function burst_freq_rate_vec_with_transient_removed(iapp, taud, tauz)
+    times, vals = burst_freq_rate_vec(iapp, taud, tauz)
     for i in eachindex(times)
-        if times[i] > 500
+        if times[i] > 50
             times = times[i:1:end]
             vals = vals[i:1:end]
             break
@@ -140,13 +140,13 @@ function burst_freq_rate_vec_with_transient_removed(iapp)
     return times, vals    
 end
 
-function return_peaks_tuple_array_rate_with_transient_removed(iapp)
-    times, vals = burst_freq_rate_vec_with_transient_removed(iapp)
+function return_peaks_tuple_array_rate_with_transient_removed(iapp, taud, tauz)
+    times, vals = burst_freq_rate_vec_with_transient_removed(iapp, taud, tauz)
     return return_peaks_of_rate_values(times, vals)
 end
 
-function return_rate_zero_period_size_in_time(iapp)
-    times, vals = burst_freq_rate_vec_with_transient_removed(iapp)    
+function return_rate_zero_period_size_in_time(iapp, taud, tauz)
+    times, vals = burst_freq_rate_vec_with_transient_removed(iapp, taud, tauz)    
     mounds_size_array = []
     time_between_freq_mounds_array = []
     time_of_first_non_zero_val = times[1]
@@ -211,14 +211,14 @@ function return_peaks_time_value_arrays_rate_with_transient_removed(iapp)
     return peaks_tuple_array_to_peaks_time_value_arrays(peaks)
 end
 
-function burst_freq_rate_with_transient_removed(iapp)
-    return burst_freq_rate(iapp, true)
+function burst_freq_rate_with_transient_removed(iapp, taud, tauz)
+    return burst_freq_rate(iapp, taud, tauz, true)
 end
 
-function burst_freq_rate(iapp, remove_transient=false)
-    peaks_tuple_array = return_peaks_tuple_array_rate(iapp)
+function burst_freq_rate(iapp, taud=100, tauz=400, remove_transient=false)
+    peaks_tuple_array = return_peaks_tuple_array_rate(iapp, taud, tauz)
     if remove_transient
-        peaks_tuple_array = return_peaks_tuple_array_rate_with_transient_removed(iapp)
+        peaks_tuple_array = return_peaks_tuple_array_rate_with_transient_removed(iapp, taud, tauz)
     end
     pks_diff = []
     for i in eachindex(peaks_tuple_array)
@@ -235,8 +235,8 @@ function burst_freq_rate(iapp, remove_transient=false)
 
 
     pks_sorted = sort(pks_diff, rev=true)
-    println("sorted intervals rate")
-    println(pks_sorted)
+    #println("sorted intervals rate")
+    #println(pks_sorted)
     #pks_avg_delta = sum(pks_sorted)/length(pks_sorted)
     indx = 2
     if length(pks_sorted) <= 1
@@ -254,19 +254,19 @@ function burst_freq_rate(iapp, remove_transient=false)
     return 0 
 end
 
-function create_burst_freq_array_rate_with_transient_removed(start, endpoint, step)
-    return create_burst_freq_array_rate(start, endpoint, step, true)
+function create_burst_freq_array_rate_with_transient_removed(start, endpoint, step, taud, tauz)
+    return create_burst_freq_array_rate(start, endpoint, step, taud, tauz, true)
 end
 
-function create_burst_freq_array_rate(start, endpoint, step, remove_transient=false)
+function create_burst_freq_array_rate(start, endpoint, step, taud=100, tauz=400, remove_transient=false)
     freq_arr = []
     iapp_ret = []
     for i in start:step:endpoint
         push!(iapp_ret, i)
         if remove_transient
-            push!(freq_arr, burst_freq_rate_with_transient_removed(i))
+            push!(freq_arr, burst_freq_rate_with_transient_removed(i, taud, tauz))
         else
-            push!(freq_arr, burst_freq_rate(i))
+            push!(freq_arr, burst_freq_rate(i, taud, tauz))
         end
     end
     return iapp_ret, freq_arr
